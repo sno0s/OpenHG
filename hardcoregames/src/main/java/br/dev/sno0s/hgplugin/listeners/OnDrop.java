@@ -12,8 +12,14 @@ import java.util.Set;
 
 public class OnDrop implements Listener {
 
+    /**
+     *  this method blocks the drop of some items
+     */
+
+    // blocked items list
     private final Set<String> blockedItems = new HashSet<>(Arrays.asList(
-            "§eSeletor de Kits"
+            "§eSeletor de Kits",
+            "§aLoja de kits"
     ));
 
     @EventHandler

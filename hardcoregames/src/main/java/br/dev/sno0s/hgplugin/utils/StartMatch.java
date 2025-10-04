@@ -1,6 +1,8 @@
 package br.dev.sno0s.hgplugin.utils;
 
 import br.dev.sno0s.hgplugin.Hgplugin;
+import br.dev.sno0s.hgplugin.items.Compass;
+import br.dev.sno0s.hgplugin.items.KitsShop;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -33,6 +35,7 @@ public class StartMatch {
             /*
                 TODO: Here, call a method that will set all players kit items
              */
+            p.getInventory().setItem(8, Compass.create());
         }
 
         // invincibility countdown

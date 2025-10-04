@@ -39,7 +39,5 @@ public class CompassListener implements Listener {
         }
 
 
-
-
     }
 }

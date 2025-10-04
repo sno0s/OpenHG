@@ -17,7 +17,6 @@ public class PlayerJoinItems {
         player.getInventory().setItem(0, KitSelector.create()); // slot 1
         player.getInventory().setItem(8, KitsShop.create()); // slot 9
 
-
     }
 
     private PlayerJoinItems() {}
