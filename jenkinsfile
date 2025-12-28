@@ -69,7 +69,7 @@ pipeline {
                 script {
                     echo "Iniciando deploy para a pasta: ${env.MINECRAFT_PLUGIN_DIR}"
 
-                    def jarFile = "hardcoregames/hgplugin/build/libs/hardcoregames*.jar"
+                    def jarFile = "hardcoregames/build/libs/hardcoregames*.jar"
 
                     sh "rm -f ${env.MINECRAFT_PLUGIN_DIR}/hardcoregames-*.jar"
                     sh "cp ${jarFile} ${env.MINECRAFT_PLUGIN_DIR}"
