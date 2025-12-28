@@ -4,7 +4,7 @@ pipeline {
     environment {
         JAVA_HOME = "/opt/jdk-21"
         PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-        MINECRAFT_PLUGIN_DIR = "/AppData/crafty/servers/f85ecd61-a83f-4854-ab5d-c7cc0bbe5832/plugins"
+        MINECRAFT_PLUGIN_DIR = "AppData/crafty/servers/f85ecd61-a83f-4854-ab5d-c7cc0bbe5832/plugins"
     }
 
     stages {
