@@ -120,7 +120,7 @@ Detalhes: ${env.BUILD_URL}
 
 Deploy do plugin concluído!
 """,
-                to: "matheus.maciel@gec.inatel.br"
+                to: "maathdesigner@outlook.com"
             )
         }
         
