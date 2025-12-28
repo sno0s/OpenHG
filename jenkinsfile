@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                dir('HGPlugin/hardcoregames') {
+                dir('hardcoregames') {
                     sh '''
                         echo "Dando permissão de execução ao gradlew..."
                         chmod +x ./gradlew
@@ -23,13 +23,13 @@ pipeline {
         stage('Archive') {
             steps {
                 echo "Gerando arquivo .jar pelo Gradle..."
-                archiveArtifacts artifacts: 'HGPlugin/hardcoregames/build/libs/hardcoregames-1.0.0.jar', fingerprint: true
+                archiveArtifacts artifacts: 'hardcoregames/build/libs/hardcoregames-1.0.0.jar', fingerprint: true
             }
         }
 
         stage('Package Validation') {
             steps {
-                dir('HGPlugin/hardcoregames') {
+                dir('hardcoregames') {
                     sh '''
                         echo "Iniciando Validação do JAR"
 
