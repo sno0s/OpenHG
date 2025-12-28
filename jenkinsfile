@@ -69,11 +69,22 @@ pipeline {
                 script {
                     echo "Iniciando deploy para a pasta: ${env.MINECRAFT_PLUGIN_DIR}"
 
-                    def jarFile = "hardcoregames/build/libs/hardcoregames*.jar"
+                    def jarFile = sh(
+                        script: 'ls questweaver/build/libs/*.jar | grep -v "plain" | head -n 1',
+                        returnStdout: true
+                    ).trim()
 
-                    sh "rm -f ${env.MINECRAFT_PLUGIN_DIR}/hardcoregames-*.jar"
-                    sh "cp ${jarFile} ${env.MINECRAFT_PLUGIN_DIR}"
-                    echo "Plugin copiado com sucesso!"
+                    if (jarFile) {
+                        echo "Arquivo do plugin encontrado: ${jarFile}"
+
+                        sh "rm -f ${env.MINECRAFT_PLUGIN_DIR}/hadcoregames*.jar"
+                        sh "rm -rf ${env.MINECRAFT_PLUGIN_DIR}/HGPlugin"
+
+                        sh "cp ${jarFile} ${env.MINECRAFT_PLUGIN_DIR}"
+                        echo "Plugin copiado com sucesso!"
+                    } else {
+                        error "Nenhum arquivo .jar foi encontrado no workspace!"
+                    }
                 }
             }
         }
