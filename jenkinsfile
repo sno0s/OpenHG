@@ -70,7 +70,7 @@ pipeline {
                     echo "Iniciando deploy para a pasta: ${env.MINECRAFT_PLUGIN_DIR}"
 
                     def jarFile = sh(
-                        script: 'ls questweaver/build/libs/*.jar | grep -v "plain" | head -n 1',
+                        script: 'ls hardcoregames/build/libs/*.jar | grep -v "plain" | head -n 1',
                         returnStdout: true
                     ).trim()
 
