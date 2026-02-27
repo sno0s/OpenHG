@@ -14,22 +14,23 @@ public class StartMatchCommand implements CommandExecutor {
 
     /*
         CommandExecutor to force the match start
+        verify if sender is not a player, so is the console
+        execute match start and say it to the player
         author: sno0s
      */
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // verify if sender is not a player, so is the console
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+    {
         if (!(sender instanceof Player)) {
             Bukkit.getLogger().info(getServerName() + " Console forçou início da partida.");
-            StartMatch.execute(); // starting match
+            StartMatch.execute();
             return true;
         }
 
-        Player player = (Player) sender; // getting player isntance
+        Player player = (Player) sender;
 
-        // execute match start and say it to the player
-        sender.sendMessage(getServerName() + " §eVocê iniciou a partida."); // message to player
-        Bukkit.getLogger().info(player.getName() + " iniciou a partida."); // message to console
+        sender.sendMessage(getServerName() + " §eVocê iniciou a partida.");
+        Bukkit.getLogger().info(player.getName() + " iniciou a partida.");
         StartMatch.execute();
 
         return true;

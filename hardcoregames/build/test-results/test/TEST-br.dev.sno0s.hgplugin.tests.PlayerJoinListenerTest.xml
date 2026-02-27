@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="br.dev.sno0s.hgplugin.tests.PlayerJoinListenerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-09-27T21:34:37" hostname="SARAMPO" time="0.014">
+<testsuite name="br.dev.sno0s.hgplugin.tests.PlayerJoinListenerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-02-27T03:22:27" hostname="DESKTOP-HMBN0DA" time="0.011">
   <properties/>
-  <testcase name="instanciaNaoEhNula()" classname="br.dev.sno0s.hgplugin.tests.PlayerJoinListenerTest" time="0.014"/>
+  <testcase name="instanciaNaoEhNula()" classname="br.dev.sno0s.hgplugin.tests.PlayerJoinListenerTest" time="0.011"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
