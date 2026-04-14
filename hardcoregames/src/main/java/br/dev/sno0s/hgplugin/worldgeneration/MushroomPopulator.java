@@ -27,7 +27,7 @@ public class MushroomPopulator extends BlockPopulator {
     public void populate(World world, Random random, Chunk chunk) {
 
         // número de tentativas por chunk (ajuste de acordo com mushroom-density na config.yml)
-        int tries = Hgplugin.getPluginConfig().getInt("HGconfigs.mushroom-density") + random.nextInt(11); // x a x+10 tentativas
+        int tries = Hgplugin.getConfigManager().getMushroomDensity() + random.nextInt(11); // x a x+10 tentativas
 
         for (int i = 0; i < tries; i++) {
             int x = (chunk.getX() << 4) + random.nextInt(16);

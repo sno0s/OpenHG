@@ -1,8 +1,8 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
-import br.dev.sno0s.hgplugin.structures.TrashCleanPopulator;
 import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Chunk;
 import org.codehaus.plexus.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
@@ -25,27 +25,35 @@ public class WorldGeneration {
             }
         }
 
-        // Cria o mundo com biomas que eu quero
+        // Cria o mundo com chunk generator próprio (sem oceanos) e biomas customizados
         WorldCreator wc = new WorldCreator(worldName);
         wc.environment(World.Environment.NORMAL);
+        wc.generator(new HGChunkGenerator());
         wc.biomeProvider(new HGWorldProvider());
         World world = Bukkit.createWorld(wc);
 
-        //Bukkit.getLogger().info("[HardcoreGames] Removendo blocos desnecessários.");
-        //world.getPopulators().add(new TrashCleanPopulator());
+        Bukkit.getLogger().info("[HardcoreGames] WorldBorder e biomas aplicados.");
 
         Bukkit.getLogger().info("[HardcoreGames] Adicionando cogumelos.");
         world.getPopulators().add(new MushroomPopulator());
 
         // Spawn central
-        world.setSpawnLocation(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 10, 0));
+        world.setSpawnLocation(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0));
+
+        // Limpa chunks de spawn já carregados (decorações vanilla são aplicadas durante createWorld)
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Bukkit.getLogger().info("[HardcoreGames] Limpando chunks de spawn.");
+            for (Chunk chunk : world.getLoadedChunks()) {
+                TrashCleanPopulator.cleanChunk(chunk);
+            }
+        }, 20L); // 1s — suficiente para o Paper finalizar decorações
 
         // Agenda a parede alguns ticks depois (evita travar no onEnable)
+        int wallSize = 500;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Bukkit.getLogger().info("[HardcoreGames] Gerando bordas.");
             MapComponents.gerarParede(plugin, world, 500);
         }, 40L); // ~2s
-
 
         Bukkit.getLogger().info("[HardcoreGames] Setando configurações de clima e tempo.");
         //configs de tempo

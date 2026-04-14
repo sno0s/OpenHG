@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = 'br.dev.sno0s'
@@ -16,10 +17,13 @@ repositories {
 
 dependencies {
     // Plugin
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+
+    // SQLite (embutido no jar via shadowJar)
+    implementation("org.xerial:sqlite-jdbc:3.45.3.0")
 
     // Testes
-    testImplementation("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 
@@ -54,6 +58,11 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
+}
+
+shadowJar {
+    // realoca o pacote para evitar conflito com outros plugins que usem SQLite
+    relocate 'org.sqlite', 'br.dev.sno0s.hgplugin.libs.sqlite'
 }
 
 tasks.withType(JavaCompile).configureEach {

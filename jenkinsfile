@@ -123,11 +123,11 @@ Deploy do plugin concluído!
                 to: "maathdesigner@outlook.com"
             )
         }
-        
+
         success {
             echo "✓ Build e deploy concluídos com sucesso!"
         }
-        
+
         failure {
             echo "✗ Build falhou. Verifique os logs acima."
         }

@@ -8,3 +8,25 @@ commands:
     description: "Inicia jogo mesmo que não contenha nenhum jogador."
     usage: /startmatch
     permission: hg.plugin.startmatch
+  spawnfeast:
+    description: "Spawn o Feast na localização do jogador (para testes)."
+    usage: /spawnfeast
+    permission: hg.plugin.spawnfeast
+  kit:
+    description: "Seleciona um kit para a partida."
+    usage: /kit <nome>
+  stats:
+    description: "Exibe estatísticas de um jogador."
+    usage: /stats [jogador]
+  restarthg:
+    description: "Reinicia o servidor via Crafty."
+    usage: /restarthg
+    permission: hg.plugin.restarthg
+
+permissions:
+  hg.plugin.startmatch:
+    default: op
+  hg.plugin.spawnfeast:
+    default: op
+  hg.plugin.restarthg:
+    default: op

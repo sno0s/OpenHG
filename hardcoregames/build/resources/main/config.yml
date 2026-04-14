@@ -1,16 +1,55 @@
 HGconfigs:
   server-name: "§f[§cHardcore§fGames]"
+
+  # Cores das mensagens — use códigos §x ou nomes como "§e", "§a", etc.
+  colors:
+    msg: "§f"         # mensagens informativas
+    highlight: "§e"   # nomes de jogadores e valores
+    error: "§c"       # erros
+    success: "§a"     # confirmações
+    broadcast: "§6"   # anúncios globais
   mushroom-density: 40 #Integer
+  tree-density: 1 #Integer (árvores mínimas por chunk)
   damage-multiplier:
   soup-heal: 6.0 #Double
   soup-food: 7 #Double
-  Biomes:
-    birch: true
-    plains: true
-    forest: true
-    dark-forest: true
+  kangaroo:
+    hit-cooldown: 3  # segundos sem poder usar o foguete após receber hit de player
 
-Commands:
-  github:
-    permission: false
-    message: "https://github.com/sno0s"
+  terrain:
+    biome-frequency: 0.003   # menor = biomas maiores | maior = biomas menores
+    plains-weight: 0.2       # limiar de umidade para plains (-1.0 a 1.0), maior = mais plains
+    dark-forest-weight: -0.3 # limiar de umidade para dark forest vs birch, menor = menos dark forest
+
+  # Integração com o Crafty Controller
+  crafty:
+    url: "https://localhost:8111"
+    api-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpYXQiOjE3NzU3MDA2MjMsInRva2VuX2lkIjoxfQ.2Naa4D69MBbg6__x6ik0G6iU3h7jC2WzyTtbCq_qHSU"
+    server-id: "3f46815c-8102-4975-9f57-f367310bdc4e"
+    restart-delay: 15  # segundos após o fim da partida para reiniciar
+
+  feast-loot:
+    - material: "DIAMOND_SWORD"
+      chance: 20
+    - material: "IRON_SWORD"
+      chance: 60
+    - material: "GOLDEN_APPLE"
+      chance: 70
+      min: 1
+      max: 3
+    - material: "DIAMOND_HELMET"
+      chance: 15
+    - material: "BOW"
+      chance: 40
+    - material: "ARROW"
+      chance: 80
+      min: 4
+      max: 16
+    - material: "COBWEB"
+      chance: 50
+      min: 2
+      max: 5
+    - material: "TNT"
+      chance: 30
+      min: 1
+      max: 2

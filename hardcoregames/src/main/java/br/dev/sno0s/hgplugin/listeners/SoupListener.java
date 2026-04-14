@@ -24,8 +24,8 @@ public class SoupListener implements Listener {
             if(player.getHealth() < 20){
                 // cancela uso normal
                 event.setCancelled(true);
-                double heal = Hgplugin.getPluginConfig().getDouble("HGconfigs.soup-heal");
-                int foodHeal = Hgplugin.getPluginConfig().getInt("HGconfigs.soup-food");
+                double heal = Hgplugin.getConfigManager().getSoupHeal();
+                int foodHeal = Hgplugin.getConfigManager().getSoupFood();
 
                 // cura 3 corações (6 pontos de vida)
                 double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getDefaultValue();

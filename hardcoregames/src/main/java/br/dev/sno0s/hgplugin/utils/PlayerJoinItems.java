@@ -1,7 +1,7 @@
 package br.dev.sno0s.hgplugin.utils;
 
 import br.dev.sno0s.hgplugin.items.KitSelector;
-import br.dev.sno0s.hgplugin.items.KitsShop;
+import br.dev.sno0s.hgplugin.items.StatsItem;
 import org.bukkit.entity.Player;
 
 public class PlayerJoinItems {
@@ -15,7 +15,7 @@ public class PlayerJoinItems {
     public static void give(Player player) {
 
         player.getInventory().setItem(0, KitSelector.create()); // slot 1
-        player.getInventory().setItem(8, KitsShop.create()); // slot 9
+        player.getInventory().setItem(8, StatsItem.create()); // slot 9
 
     }
 
