@@ -9,7 +9,7 @@ HGconfigs:
     success: "§a"     # confirmações
     broadcast: "§6"   # anúncios globais
   mushroom-density: 40 #Integer
-  tree-density: 1 #Integer (árvores mínimas por chunk)
+  tree-density: 1 # Reforço de árvores por bioma: 0 desliga o reforço; 1 padrão; 2 mais denso (máx. 8)
   damage-multiplier:
   soup-heal: 6.0 #Double
   soup-food: 7 #Double
@@ -17,13 +17,20 @@ HGconfigs:
     hit-cooldown: 3  # segundos sem poder usar o foguete após receber hit de player
 
   terrain:
-    biome-frequency: 0.003   # menor = biomas maiores | maior = biomas menores
-    plains-weight: 0.2       # limiar de umidade para plains (-1.0 a 1.0), maior = mais plains
-    dark-forest-weight: -0.3 # limiar de umidade para dark forest vs birch, menor = menos dark forest
+    generator-version: 2    # Migração automática dos valores do preset antigo
+    base-height: 68          # Altura média do chão (48 a 112)
+    height-variation: 12     # Limite de variação vertical (0 a 24); menor = mais plano
+    hill-frequency: 0.006   # Frequência das colinas (0.001 a 0.02); menor = colinas mais largas
+    biome-frequency: 0.008  # Frequência dos biomas (0.001 a 0.05); menor = regiões maiores
+    plains-weight: -0.15    # Limiar de umidade (-1 a 1); maior = mais planícies
+    dark-forest-weight: -0.3 # Limiar de temperatura (-1 a 1); maior = mais floresta escura
+
+  wall:
+    height: 10 # Altura acima do ponto mais alto do perímetro (6 a 24); torres sobem mais 2 a 4
 
   # Integração com o Crafty Controller
   crafty:
-    url: "https://localhost:8111"
+    url: "https://10.170.184.252:8111"
     api-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpYXQiOjE3NzU3MDA2MjMsInRva2VuX2lkIjoxfQ.2Naa4D69MBbg6__x6ik0G6iU3h7jC2WzyTtbCq_qHSU"
     server-id: "3f46815c-8102-4975-9f57-f367310bdc4e"
     restart-delay: 15  # segundos após o fim da partida para reiniciar

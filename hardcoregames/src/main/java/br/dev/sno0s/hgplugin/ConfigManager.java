@@ -1,6 +1,7 @@
 package br.dev.sno0s.hgplugin;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import br.dev.sno0s.hgplugin.worldgeneration.TerrainProfile;
 
 public class ConfigManager {
 
@@ -8,6 +9,23 @@ public class ConfigManager {
 
     public ConfigManager(Hgplugin plugin) {
         this.plugin = plugin;
+        if (migrateTerrainDefaults(plugin.getConfig())) {
+            plugin.saveConfig();
+        }
+    }
+
+    /** Upgrade only the old preset values; preserve explicitly customized terrain settings. */
+    static boolean migrateTerrainDefaults(FileConfiguration config) {
+        String path = "HGconfigs.terrain.";
+        if (config.isSet(path + "generator-version")) return false;
+        if (config.isSet(path + "biome-frequency") && config.getDouble(path + "biome-frequency") == 0.003) {
+            config.set(path + "biome-frequency", 0.008);
+        }
+        if (config.isSet(path + "plains-weight") && config.getDouble(path + "plains-weight") == 0.2) {
+            config.set(path + "plains-weight", -0.15);
+        }
+        config.set(path + "generator-version", 2);
+        return true;
     }
 
     public String getServerName() {
@@ -47,7 +65,7 @@ public class ConfigManager {
     }
 
     public String getCraftyUrl() {
-        return plugin.getConfig().getString("HGconfigs.crafty.url", "https://localhost:8443");
+        return plugin.getConfig().getString("HGconfigs.crafty.url", "https://10.170.184.252:8111");
     }
 
     public String getCraftyApiKey() {
@@ -67,15 +85,37 @@ public class ConfigManager {
     }
 
     public double getBiomeFrequency() {
-        return plugin.getConfig().getDouble("HGconfigs.terrain.biome-frequency", 0.003);
+        return plugin.getConfig().getDouble("HGconfigs.terrain.biome-frequency", 0.008);
     }
 
     public double getBiomePlainsWeight() {
-        return plugin.getConfig().getDouble("HGconfigs.terrain.plains-weight", 0.2);
+        return plugin.getConfig().getDouble("HGconfigs.terrain.plains-weight", -0.15);
     }
 
     public double getBiomeDarkForestWeight() {
         return plugin.getConfig().getDouble("HGconfigs.terrain.dark-forest-weight", -0.3);
+    }
+
+    public int getTreeDensity() {
+        return plugin.getConfig().getInt("HGconfigs.tree-density", 1);
+    }
+
+    public int getWallHeight() {
+        return Math.clamp(plugin.getConfig().getInt("HGconfigs.wall.height", 10), 6, 24);
+    }
+
+    public TerrainProfile getTerrainProfile() {
+        FileConfiguration cfg = plugin.getConfig();
+        try {
+            return new TerrainProfile(
+                    cfg.getInt("HGconfigs.terrain.base-height", 68),
+                    cfg.getDouble("HGconfigs.terrain.height-variation", 12),
+                    cfg.getDouble("HGconfigs.terrain.hill-frequency", 0.006),
+                    getBiomeFrequency(), getBiomePlainsWeight(), getBiomeDarkForestWeight());
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Configuração de terreno inválida; usando o preset clássico: " + e.getMessage());
+            return TerrainProfile.classic();
+        }
     }
 
     /** Acesso direto ao FileConfiguration para usos avançados (ex: feast-loot list). */

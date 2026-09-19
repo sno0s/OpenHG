@@ -1,69 +1,37 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
-import br.dev.sno0s.hgplugin.Hgplugin;
-import org.bukkit.Chunk;
+import org.bukkit.HeightMap;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.TreeType;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
+import org.bukkit.generator.LimitedRegion;
+import org.bukkit.generator.WorldInfo;
 
 import java.util.Random;
 
-public class TreePopulator extends BlockPopulator {
+/** Supplements vanilla forests without accessing live chunks during generation. */
+public final class TreePopulator extends BlockPopulator {
+    private final int density;
+
+    public TreePopulator(int density) { this.density = Math.clamp(density, 0, 8); }
 
     @Override
-    public void populate(World world, Random random, Chunk chunk) {
-        // chance de gerar árvore por chunk (configurável, padrão 1-2)
-        int tries = Hgplugin.getConfigManager().getConfig().getInt("HGconfigs.tree-density", 0) + random.nextInt(2);
-
-        int chunkX = chunk.getX() << 4;
-        int chunkZ = chunk.getZ() << 4;
-
-        for (int i = 0; i < tries; i++) {
-            int x = chunkX + random.nextInt(16);
-            int z = chunkZ + random.nextInt(16);
-            int y = getTopNonTransparentY(world, x, z);
-
-            // só gera se o topo for grass
-            if (y < 0 || world.getBlockAt(x, y, z).getType() != Material.GRASS_BLOCK) continue;
-
-            generateTree(world, x, y + 1, z, random);
-        }
-    }
-
-    /** Encontra o maior y com bloco não-transparente (o topo do terreno). */
-    private int getTopNonTransparentY(World world, int x, int z) {
-        for (int y = world.getMaxHeight() - 1; y > 0; y--) {
-            Block b = world.getBlockAt(x, y, z);
-            if (!b.getType().isAir() && b.getType() != Material.SHORT_GRASS && b.getType() != Material.TALL_GRASS) {
-                return y;
-            }
-        }
-        return -1;
-    }
-
-    /** Gera uma árvore de 3-6 blocos de altura aleatória. */
-    private void generateTree(World world, int x, int y, int z, Random random) {
-        int trunkHeight = 3 + random.nextInt(4); // 3-6 blocos
-
-        // tronco
-        for (int h = 0; h < trunkHeight; h++) {
-            world.getBlockAt(x, y + h, z).setType(Material.OAK_LOG, false);
-        }
-
-        // folhas
-        int leafStart = y + trunkHeight - 2;
-        int leafEnd = y + trunkHeight + 1;
-        for (int ly = leafStart; ly <= leafEnd; ly++) {
-            for (int lx = -2; lx <= 2; lx++) {
-                for (int lz = -2; lz <= 2; lz++) {
-                    if (Math.abs(lx) == 2 && Math.abs(lz) == 2 && random.nextBoolean()) continue; // cantos aleatórios
-                    Block block = world.getBlockAt(x + lx, ly, z + lz);
-                    if (block.getType().isAir()) {
-                        block.setType(Material.OAK_LEAVES, false);
-                    }
-                }
-            }
+    public void populate(WorldInfo world, Random random, int chunkX, int chunkZ, LimitedRegion region) {
+        for (int i = 0; i < 12 * density; i++) {
+            int x = (chunkX << 4) + random.nextInt(16);
+            int z = (chunkZ << 4) + random.nextInt(16);
+            if (x * (long) x + z * (long) z < 14 * 14) continue;
+            int y = region.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+            if (y + 14 >= world.getMaxHeight() || region.getType(x, y, z) != Material.GRASS_BLOCK) continue;
+            Biome biome = region.getBiome(x, y, z);
+            double chance = biome == Biome.PLAINS ? 0.035 : biome == Biome.DARK_FOREST ? 0.8 : 0.55;
+            if (random.nextDouble() >= chance) continue;
+            TreeType type = biome == Biome.BIRCH_FOREST ? TreeType.BIRCH
+                    : biome == Biome.DARK_FOREST ? TreeType.DARK_OAK
+                    : random.nextInt(5) == 0 ? TreeType.BIRCH : TreeType.TREE;
+            region.generateTree(new Location(region.getWorld(), x, y + 1, z), random, type);
         }
     }
 }

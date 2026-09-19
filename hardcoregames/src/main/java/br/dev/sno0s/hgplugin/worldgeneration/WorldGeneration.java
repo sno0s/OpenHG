@@ -6,6 +6,9 @@ import org.bukkit.Chunk;
 import org.codehaus.plexus.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
+import br.dev.sno0s.hgplugin.Hgplugin;
+import br.dev.sno0s.hgplugin.ConfigManager;
 
 public class WorldGeneration {
 
@@ -17,7 +20,9 @@ public class WorldGeneration {
         long inicio = System.currentTimeMillis();
         // Se já existe, descarrega e apaga
         if (hgDirectory.exists()) {
-            Bukkit.unloadWorld(worldName, false);
+            if (Bukkit.getWorld(worldName) != null && !Bukkit.unloadWorld(worldName, false)) {
+                throw new IllegalStateException("Não foi possível descarregar hg_world para gerar uma nova partida.");
+            }
             try {
                 FileUtils.deleteDirectory(hgDirectory);
             } catch (IOException e) {
@@ -25,17 +30,21 @@ public class WorldGeneration {
             }
         }
 
-        // Cria o mundo com chunk generator próprio (sem oceanos) e biomas customizados
+        ConfigManager config = Hgplugin.getConfigManager();
+        TerrainProfile terrain = config.getTerrainProfile();
+        // Uma seed nova por reinício; todos os chunks usam a mesma seed durante a partida.
         WorldCreator wc = new WorldCreator(worldName);
+        wc.seed(ThreadLocalRandom.current().nextLong());
         wc.environment(World.Environment.NORMAL);
-        wc.generator(new HGChunkGenerator());
-        wc.biomeProvider(new HGWorldProvider());
+        wc.generator(new HGChunkGenerator(terrain, config.getTreeDensity(), config.getMushroomDensity()));
+        wc.biomeProvider(new HGWorldProvider(terrain));
+        wc.generateStructures(false);
         World world = Bukkit.createWorld(wc);
+        if (world == null) throw new IllegalStateException("Falha ao criar hg_world.");
 
         Bukkit.getLogger().info("[HardcoreGames] WorldBorder e biomas aplicados.");
 
-        Bukkit.getLogger().info("[HardcoreGames] Adicionando cogumelos.");
-        world.getPopulators().add(new MushroomPopulator());
+        Bukkit.getLogger().info("[HardcoreGames] Seed do mapa: " + world.getSeed());
 
         // Spawn central
         world.setSpawnLocation(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0));
@@ -52,7 +61,7 @@ public class WorldGeneration {
         int wallSize = 500;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Bukkit.getLogger().info("[HardcoreGames] Gerando bordas.");
-            MapComponents.gerarParede(plugin, world, 500);
+            MapComponents.gerarParede(plugin, world, wallSize, terrain, config.getWallHeight());
         }, 40L); // ~2s
 
         Bukkit.getLogger().info("[HardcoreGames] Setando configurações de clima e tempo.");

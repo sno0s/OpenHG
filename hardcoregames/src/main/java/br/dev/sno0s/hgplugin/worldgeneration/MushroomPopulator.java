@@ -1,49 +1,31 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
-import br.dev.sno0s.hgplugin.Hgplugin;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
+import org.bukkit.HeightMap;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
+import org.bukkit.generator.LimitedRegion;
+import org.bukkit.generator.WorldInfo;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-public class MushroomPopulator extends BlockPopulator {
+public final class MushroomPopulator extends BlockPopulator {
+    private static final Set<Material> SOIL = Set.of(Material.GRASS_BLOCK, Material.DIRT, Material.MYCELIUM, Material.PODZOL);
+    private final int density;
 
-    // lista de blocos onde os cogumelos podem nascer
-    private static final Set<Material> ALLOWED_BLOCKS = new HashSet<>(Arrays.asList(
-            Material.GRASS_BLOCK,
-            Material.DIRT,
-            Material.MYCELIUM,
-            Material.PODZOL
-    ));
+    public MushroomPopulator(int density) { this.density = Math.clamp(density, 0, 256); }
 
     @Override
-    public void populate(World world, Random random, Chunk chunk) {
-
-        // número de tentativas por chunk (ajuste de acordo com mushroom-density na config.yml)
-        int tries = Hgplugin.getConfigManager().getMushroomDensity() + random.nextInt(11); // x a x+10 tentativas
-
+    public void populate(WorldInfo world, Random random, int chunkX, int chunkZ, LimitedRegion region) {
+        if (density == 0) return;
+        int tries = density + random.nextInt(11);
         for (int i = 0; i < tries; i++) {
-            int x = (chunk.getX() << 4) + random.nextInt(16);
-            int z = (chunk.getZ() << 4) + random.nextInt(16);
-            int y = world.getHighestBlockYAt(x, z);
-
-            Block ground = world.getBlockAt(x, y, z); // bloco do chão
-            Block above = world.getBlockAt(x, y+1, z);      // onde o cogumelo vai nascer
-
-            // só coloca se o chão for permitido e o espaço estiver livre
-            if (ALLOWED_BLOCKS.contains(ground.getType()) && above.getType() == Material.AIR) {
-                Material mushroom = random.nextBoolean()
-                        ? Material.BROWN_MUSHROOM
-                        : Material.RED_MUSHROOM;
-
-                above.setType(mushroom, false);
+            int x = (chunkX << 4) + random.nextInt(16);
+            int z = (chunkZ << 4) + random.nextInt(16);
+            int y = region.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+            if (y + 1 >= world.getMaxHeight()) continue;
+            if (SOIL.contains(region.getType(x, y, z)) && region.getType(x, y + 1, z).isAir()) {
+                region.setType(x, y + 1, z, random.nextBoolean() ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM);
             }
         }
     }
