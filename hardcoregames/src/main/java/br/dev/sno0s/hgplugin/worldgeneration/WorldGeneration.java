@@ -3,8 +3,6 @@ package br.dev.sno0s.hgplugin.worldgeneration;
 import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Chunk;
-import org.codehaus.plexus.util.FileUtils;
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import br.dev.sno0s.hgplugin.Hgplugin;
@@ -14,22 +12,9 @@ public class WorldGeneration {
 
     public static void execute(JavaPlugin plugin) {
         String worldName = "hg_world";
-        File hgDirectory = new File(Bukkit.getServer().getWorldContainer(), worldName);
 
         Bukkit.getLogger().info("[HardcoreGames] Iniciando geração do mundo!");
         long inicio = System.currentTimeMillis();
-        // Se já existe, descarrega e apaga
-        if (hgDirectory.exists()) {
-            if (Bukkit.getWorld(worldName) != null && !Bukkit.unloadWorld(worldName, false)) {
-                throw new IllegalStateException("Não foi possível descarregar hg_world para gerar uma nova partida.");
-            }
-            try {
-                FileUtils.deleteDirectory(hgDirectory);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         ConfigManager config = Hgplugin.getConfigManager();
         TerrainProfile terrain = config.getTerrainProfile();
         // Uma seed nova por reinício; todos os chunks usam a mesma seed durante a partida.
@@ -39,8 +24,12 @@ public class WorldGeneration {
         wc.generator(new HGChunkGenerator(terrain, config.getTreeDensity(), config.getMushroomDensity()));
         wc.biomeProvider(new HGWorldProvider(terrain));
         wc.generateStructures(false);
-        World world = Bukkit.createWorld(wc);
-        if (world == null) throw new IllegalStateException("Falha ao criar hg_world.");
+        World world;
+        try {
+            world = WorldReset.recreate(plugin.getServer(), wc, plugin.getLogger());
+        } catch (IOException e) {
+            throw new IllegalStateException("Falha ao limpar os dados antigos de hg_world.", e);
+        }
 
         Bukkit.getLogger().info("[HardcoreGames] WorldBorder e biomas aplicados.");
 

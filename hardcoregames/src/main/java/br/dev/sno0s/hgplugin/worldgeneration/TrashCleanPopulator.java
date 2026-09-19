@@ -77,6 +77,12 @@ public class TrashCleanPopulator implements Listener {
         if (!event.getWorld().getName().equals("hg_world")) return;
 
         Chunk chunk = event.getChunk();
-        Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () -> cleanChunk(chunk));
+        World sourceWorld = event.getWorld();
+        Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () -> {
+            // Discovery/reset can unload this world before the next tick.
+            if (Bukkit.getWorld(sourceWorld.getUID()) == sourceWorld && chunk.isLoaded()) {
+                cleanChunk(chunk);
+            }
+        });
     }
 }

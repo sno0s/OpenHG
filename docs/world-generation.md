@@ -8,6 +8,13 @@ A cada inicialização, o plugin recria somente `hg_world` com uma seed aleatór
 nova, registrada no console. Terreno, biomas e muralha usam essa mesma seed.
 O centro tem relevo mais plano, e a arena continua com 500 × 500 blocos.
 
+O reset usa a pasta retornada por `World.getWorldFolder()`. Isso cobre tanto
+`hg_world/` nas versões antigas quanto
+`world/dimensions/minecraft/hg_world/` no Paper 26. O plugin primeiro
+carrega/localiza a arena com seu gerador, descarrega sem salvar, remove
+somente seus dados e recria o mundo. Se o descarregamento falhar, nada é
+apagado. O caminho real e as seeds anterior/nova aparecem no console.
+
 As árvores nativas recebem um reforço por bioma; planícies continuam abertas.
 Árvores e cogumelos são registrados antes da geração dos chunks iniciais.
 Cavernas, minérios e decorações dos biomas continuam habilitados. Estruturas
