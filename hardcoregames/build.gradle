@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id("xyz.jpenilla.run-paper") version "2.3.1"
-    id("com.gradleup.shadow") version "8.3.11"
+    id("xyz.jpenilla.run-paper") version "3.1.0"
+    id("com.gradleup.shadow") version "9.4.0"
 }
 
 group = 'br.dev.sno0s'
@@ -17,23 +17,23 @@ repositories {
 
 dependencies {
     // Plugin
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.124-stable")
 
     // SQLite (embutido no jar via shadowJar)
     implementation("org.xerial:sqlite-jdbc:3.45.3.0")
 
     // Testes
-    testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    testImplementation("io.papermc.paper:paper-api:26.2.build.124-stable")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
 
     // Mockito (para JUnit 5)
-    testImplementation "org.mockito:mockito-core:5.11.0"
-    testImplementation "org.mockito:mockito-junit-jupiter:5.11.0"
-    testImplementation "org.mockito:mockito-inline:5.2.0" // necessário p/ mockStatic
+    testImplementation "org.mockito:mockito-core:5.23.0"
+    testImplementation "org.mockito:mockito-junit-jupiter:5.23.0"
 
-    // ✅ MockBukkit
-    testImplementation "com.github.seeseemelk:MockBukkit-v1.20:3.43.0"
+    // Registries and block physics matching Paper 26.2.
+    testImplementation "org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1"
 
 }
 
@@ -46,18 +46,16 @@ tasks {
         // Configure the Minecraft version for our task.
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21.11")
+        minecraftVersion("26.2")
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 }
 
 shadowJar {

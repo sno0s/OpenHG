@@ -87,8 +87,8 @@ public class StartMatch {
             }
         }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 segundo
 
-        // Localização aleatória do Feast — mínimo 60 blocos da borda (mapa 500x500)
-        int range = 250 - 60; // 190
+        // Localização aleatória do Feast — mínimo 60 blocos da borda configurada.
+        int range = Hgplugin.getConfigManager().getWorldSize() / 2 - 60;
         Random rng = new Random();
         int feastX = rng.nextInt(range * 2 + 1) - range;
         int feastZ = rng.nextInt(range * 2 + 1) - range;

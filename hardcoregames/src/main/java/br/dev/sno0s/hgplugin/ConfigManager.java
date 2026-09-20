@@ -16,8 +16,17 @@ public class ConfigManager {
 
     /** Upgrade only the old preset values; preserve explicitly customized terrain settings. */
     static boolean migrateTerrainDefaults(FileConfiguration config) {
+        boolean changed = false;
+        if (!config.isSet("HGconfigs.world-size")) {
+            config.set("HGconfigs.world-size", 750);
+            changed = true;
+        }
+        if (!config.isSet("HGconfigs.mob-spawn-multiplier")) {
+            config.set("HGconfigs.mob-spawn-multiplier", 0.25);
+            changed = true;
+        }
         String path = "HGconfigs.terrain.";
-        if (config.isSet(path + "generator-version")) return false;
+        if (config.isSet(path + "generator-version")) return changed;
         if (config.isSet(path + "biome-frequency") && config.getDouble(path + "biome-frequency") == 0.003) {
             config.set(path + "biome-frequency", 0.008);
         }
@@ -62,6 +71,18 @@ public class ConfigManager {
 
     public int getMushroomDensity() {
         return plugin.getConfig().getInt("HGconfigs.mushroom-density", 40);
+    }
+
+    public int getWorldSize() {
+        int size = plugin.getConfig().getInt("HGconfigs.world-size", 750);
+        if (size >= 256 && size <= 10000 && size % 2 == 0) return size;
+        plugin.getLogger().warning("HGconfigs.world-size deve ser par, entre 256 e 10000; usando 750.");
+        return 750;
+    }
+
+    public double getMobSpawnMultiplier() {
+        double multiplier = plugin.getConfig().getDouble("HGconfigs.mob-spawn-multiplier", 0.25);
+        return Double.isFinite(multiplier) && multiplier >= 0 && multiplier <= 1 ? multiplier : 0.25;
     }
 
     public String getCraftyUrl() {
@@ -111,10 +132,10 @@ public class ConfigManager {
                     cfg.getInt("HGconfigs.terrain.base-height", 68),
                     cfg.getDouble("HGconfigs.terrain.height-variation", 12),
                     cfg.getDouble("HGconfigs.terrain.hill-frequency", 0.006),
-                    getBiomeFrequency(), getBiomePlainsWeight(), getBiomeDarkForestWeight());
+                    getBiomeFrequency(), getBiomePlainsWeight(), getBiomeDarkForestWeight(), getWorldSize());
         } catch (IllegalArgumentException e) {
             plugin.getLogger().warning("Configuração de terreno inválida; usando o preset clássico: " + e.getMessage());
-            return TerrainProfile.classic();
+            return new TerrainProfile(68, 12, 0.006, 0.008, -0.15, -0.3, getWorldSize());
         }
     }
 

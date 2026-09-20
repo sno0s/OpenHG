@@ -44,7 +44,7 @@ public final class Hgplugin extends JavaPlugin {
             getLogger().severe("[HardcoreGames] Falha ao conectar banco de dados: " + e.getMessage());
         }
 
-        // registrado antes da geração do mundo para capturar ChunkPopulateEvent dos chunks de spawn
+        // Limpeza complementar no carregamento; a limpeza inicial fica nos populators do gerador.
         getServer().getPluginManager().registerEvents(new TrashCleanPopulator(), this);
 
         WorldGeneration.execute(this);

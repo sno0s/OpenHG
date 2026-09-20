@@ -9,6 +9,8 @@ HGconfigs:
     success: "§a"     # confirmações
     broadcast: "§6"   # anúncios globais
   mushroom-density: 40 #Integer
+  world-size: 750 # Lado da arena quadrada, em blocos; número par entre 256 e 10000
+  mob-spawn-multiplier: 0.25 # 25% da população normal (75% menos); 0 desliga, 1 normal
   tree-density: 1 # Reforço de árvores por bioma: 0 desliga o reforço; 1 padrão; 2 mais denso (máx. 8)
   damage-multiplier:
   soup-heal: 6.0 #Double
@@ -19,7 +21,7 @@ HGconfigs:
   terrain:
     generator-version: 2    # Migração automática dos valores do preset antigo
     base-height: 68          # Altura média do chão (48 a 112)
-    height-variation: 12     # Limite de variação vertical (0 a 24); menor = mais plano
+    height-variation: 12     # Relevo das colinas (0 a 24); montanhas localizadas somam até 2x esse valor
     hill-frequency: 0.006   # Frequência das colinas (0.001 a 0.02); menor = colinas mais largas
     biome-frequency: 0.008  # Frequência dos biomas (0.001 a 0.05); menor = regiões maiores
     plains-weight: -0.15    # Limiar de umidade (-1 a 1); maior = mais planícies

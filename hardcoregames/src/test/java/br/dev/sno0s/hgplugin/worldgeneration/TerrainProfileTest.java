@@ -12,15 +12,15 @@ class TerrainProfileTest {
         int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE, biggestStep = 0;
         Map<TerrainProfile.Landscape, Integer> biomes = new EnumMap<>(TerrainProfile.Landscape.class);
         for (long seed : new long[]{0, 1, -1, 42, 987654321, Long.MIN_VALUE, Long.MAX_VALUE}) {
-            for (int x = -250; x <= 250; x++) {
-                for (int z = -250; z <= 250; z++) {
+            for (int x = -375; x <= 375; x++) {
+                for (int z = -375; z <= 375; z++) {
                     int y = terrain.heightAt(seed, x, z);
                     min = Math.min(min, y);
                     max = Math.max(max, y);
                     biggestStep = Math.max(biggestStep, Math.abs(y - terrain.heightAt(seed, x + 1, z)));
                     biggestStep = Math.max(biggestStep, Math.abs(y - terrain.heightAt(seed, x, z + 1)));
                     biomes.merge(terrain.biomeAt(seed, x, z), 1, Integer::sum);
-                    assertTrue(y >= 56 && y <= 80, "Classic terrain exceeded its height bounds");
+                    assertTrue(y >= 56 && y <= 104, "Classic terrain exceeded its height bounds");
                     assertTrue(Math.abs(y - terrain.heightAt(seed, x + 1, z)) <= 1, "East-west cliff");
                     assertTrue(Math.abs(y - terrain.heightAt(seed, x, z + 1)) <= 1, "North-south cliff");
                 }
@@ -29,7 +29,7 @@ class TerrainProfileTest {
         assertTrue(max - min >= 10, "Terrain should retain gentle hills, not become a flat world");
         int total = biomes.values().stream().mapToInt(Integer::intValue).sum();
         for (TerrainProfile.Landscape biome : TerrainProfile.Landscape.values()) {
-            assertTrue(biomes.getOrDefault(biome, 0) > total * 0.05, "Missing/rare biome: " + biome);
+            assertTrue(biomes.getOrDefault(biome, 0) > total * 0.02, "Missing/rare biome: " + biome);
         }
         System.out.println("Classic map samples: Y=" + min + ".." + max + ", max adjacent step=" + biggestStep + ", biomes=" + biomes);
     }
@@ -54,6 +54,43 @@ class TerrainProfileTest {
             assertEquals(68, terrain.heightAt(123, x, 0));
         }
         assertEquals(68, flat.heightAt(123, -200, 190));
+    }
+
+    @Test
+    void everySeedAndArenaSizeContainsAllFiveBiomesEvenWithExtremeThresholds() {
+        for (int size : new int[]{256, 500, 750, 1200, 10000}) {
+            for (long seed = -20; seed <= 20; seed++) {
+                TerrainProfile terrain = new TerrainProfile(68, 12, .006, .008, 1, 1, size);
+                Map<TerrainProfile.Landscape, Integer> counts = new EnumMap<>(TerrainProfile.Landscape.class);
+                for (int x = -size / 2; x < size / 2; x += Math.max(1, size / 150)) {
+                    for (int z = -size / 2; z < size / 2; z += Math.max(1, size / 150)) {
+                        counts.merge(terrain.biomeAt(seed, x, z), 1, Integer::sum);
+                    }
+                }
+                for (TerrainProfile.Landscape biome : TerrainProfile.Landscape.values()) {
+                    assertTrue(counts.getOrDefault(biome, 0) >= 200,
+                            "Missing usable biome " + biome + " seed=" + seed + " size=" + size);
+                }
+            }
+        }
+    }
+
+    @Test
+    void mountainsAreLocalizedAndSpawnStaysFlat() {
+        TerrainProfile terrain = TerrainProfile.classic();
+        for (long seed = -20; seed <= 20; seed++) {
+            int direction = (seed & 1) == 0 ? 1 : -1;
+            assertTrue(terrain.heightAt(seed, 170, direction * 150) >= 80);
+            int high = 0, total = 0;
+            for (int x = -375; x <= 375; x += 5) {
+                for (int z = -375; z <= 375; z += 5) {
+                    if (terrain.heightAt(seed, x, z) > 80) high++;
+                    total++;
+                }
+            }
+            assertTrue(high < total * .08, "Mountains should occupy little of the arena");
+            assertEquals(68, terrain.heightAt(seed, 0, 0));
+        }
     }
 
     @Test

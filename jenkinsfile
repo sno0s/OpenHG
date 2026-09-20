@@ -1,29 +1,45 @@
 pipeline {
     agent any
 
-    environment {
-        JAVA_HOME = "/opt/jdk-21"
-        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-        MINECRAFT_PLUGIN_DIR = "/hg-server"
+    parameters {
+        string(name: 'JAVA_HOME_PATH', defaultValue: '/opt/jdk-21',
+               description: 'Java para iniciar o Gradle; o JDK 25 do Paper é obtido automaticamente.')
     }
 
+    environment {
+        JAVA_HOME = "${params.JAVA_HOME_PATH}"
+        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+        MINECRAFT_PLUGIN_DIR = '/hg-server'
+        PLUGIN_JAR = 'hardcoregames-1.0.0-all.jar'
+    }
+
+    options { disableConcurrentBuilds() }
+
     stages {
-        stage('Build') {
+        stage('Compile') {
             steps {
                 dir('hardcoregames') {
                     sh '''
-                        echo "Dando permissão de execução ao gradlew..."
+                        set -eu
+                        java -version
                         chmod +x ./gradlew
-                        ./gradlew clean build
+                        ./gradlew --no-daemon clean classes testClasses
                     '''
                 }
             }
         }
 
-        stage('Archive') {
+        stage('Tests') {
             steps {
-                echo "Gerando arquivo .jar pelo Gradle..."
-                archiveArtifacts artifacts: 'hardcoregames/build/libs/hardcoregames-1.0.0.jar', fingerprint: true
+                dir('hardcoregames') {
+                    sh './gradlew --no-daemon test'
+                }
+            }
+            post {
+                always {
+                    junit testResults: 'hardcoregames/build/test-results/test/TEST-*.xml', allowEmptyResults: false
+                    archiveArtifacts artifacts: 'hardcoregames/build/reports/tests/test/**', allowEmptyArchive: true
+                }
             }
         }
 
@@ -31,75 +47,29 @@ pipeline {
             steps {
                 dir('hardcoregames') {
                     sh '''
-                        echo "Iniciando Validação do JAR"
-
-                        JAR_FILE="build/libs/hardcoregames-1.0.0.jar"
-                        if [ ! -f "$JAR_FILE" ]; then
-                            echo "ERRO: JAR não encontrado!"
-                            exit 1
-                        fi
-
-                        JAR_SIZE=$(du -h "$JAR_FILE" | cut -f1)
-                        echo "JAR: hardcoregames-1.0.0.jar ($JAR_SIZE)"
-
-                        if ! jar tf "$JAR_FILE" > /dev/null 2>&1; then
-                            echo "ERRO: JAR corrompido"
-                            exit 1
-                        fi
-
-                        if ! jar tf "$JAR_FILE" | grep -q "^plugin.yml$"; then
-                            echo "ERRO: plugin.yml não encontrado - falha no Minecraft!"
-                            exit 1
-                        fi
-
-                        jar xf "$JAR_FILE" plugin.yml
-                        echo "Informações Plugin:"
-                        grep -E "^(name|version):" plugin.yml | sed 's/^/  /'
-                        rm plugin.yml
-
-                        echo "MD5: $(md5sum "$JAR_FILE" | cut -d' ' -f1)"
-                        echo "Validação concluída com sucesso!"
+                        set -eu
+                        ./gradlew --no-daemon shadowJar
+                        jar tf "build/libs/$PLUGIN_JAR" > build/jar-contents.txt
+                        grep -q '^plugin.yml$' build/jar-contents.txt
+                        grep -q '^br/dev/sno0s/hgplugin/libs/sqlite/JDBC.class$' build/jar-contents.txt
+                        sha256sum "build/libs/$PLUGIN_JAR"
                     '''
                 }
+                archiveArtifacts artifacts: "hardcoregames/build/libs/${env.PLUGIN_JAR}", fingerprint: true
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    echo "Iniciando deploy para a pasta: ${env.MINECRAFT_PLUGIN_DIR}"
-
-                    def jarFile = sh(
-                        script: 'ls hardcoregames/build/libs/*.jar | grep -v "plain" | head -n 1',
-                        returnStdout: true
-                    ).trim()
-
-                    if (jarFile) {
-                        echo "Arquivo do plugin encontrado: ${jarFile}"
-
-                        sh "rm -f ${env.MINECRAFT_PLUGIN_DIR}/hadcoregames*.jar"
-                        sh "rm -rf ${env.MINECRAFT_PLUGIN_DIR}/HGPlugin"
-
-                        sh "cp ${jarFile} ${env.MINECRAFT_PLUGIN_DIR}"
-                        echo "Plugin copiado com sucesso!"
-                    } else {
-                        error "Nenhum arquivo .jar foi encontrado no workspace!"
-                    }
-                }
-            }
-        }
-
-        stage('Verify Deployment') {
-            steps {
-                sh """
-                    echo ""
-                    echo "=== RESUMO DO DEPLOY ==="
-                    echo "Plugin: \$(ls -lh ${MINECRAFT_PLUGIN_DIR}/hardcoregames-*.jar | awk '{print \$9, \$5}')"
-                    echo "========================"
-                    echo ""
-                    echo "✓ Deploy concluído com sucesso!"
-                    echo ""
-                """
+                sh '''
+                    set -eu
+                    test -d "$MINECRAFT_PLUGIN_DIR"
+                    cp "hardcoregames/build/libs/$PLUGIN_JAR" "$MINECRAFT_PLUGIN_DIR/$PLUGIN_JAR.tmp"
+                    mv -f "$MINECRAFT_PLUGIN_DIR/$PLUGIN_JAR.tmp" "$MINECRAFT_PLUGIN_DIR/$PLUGIN_JAR"
+                    # Remove apenas o artefato antigo sem SQLite, evitando dois plugins iguais.
+                    rm -f "$MINECRAFT_PLUGIN_DIR/hardcoregames-1.0.0.jar"
+                    cmp "hardcoregames/build/libs/$PLUGIN_JAR" "$MINECRAFT_PLUGIN_DIR/$PLUGIN_JAR"
+                '''
             }
         }
     }
@@ -107,29 +77,17 @@ pipeline {
     post {
         always {
             emailext(
-                subject: "Pipeline '${env.JOB_NAME} #${env.BUILD_NUMBER}' finalizada",
-                body: """\
-Olá!
-
-A pipeline do Jenkins acabou de rodar com o seguinte status:
-
-Projeto: ${env.JOB_NAME}
+                subject: "Pipeline '${env.JOB_NAME} #${env.BUILD_NUMBER}' finalizada: ${currentBuild.currentResult}",
+                body: """Projeto: ${env.JOB_NAME}
 Build: #${env.BUILD_NUMBER}
 Resultado: ${currentBuild.currentResult}
-Detalhes: ${env.BUILD_URL}
-
-Deploy do plugin concluído!
+Testes e detalhes: ${env.BUILD_URL}
+O deploy ocorre somente após compilação, testes e validação do JAR concluídos.
 """,
-                to: "maathdesigner@outlook.com"
+                to: 'maathdesigner@outlook.com'
             )
         }
-
-        success {
-            echo "✓ Build e deploy concluídos com sucesso!"
-        }
-
-        failure {
-            echo "✗ Build falhou. Verifique os logs acima."
-        }
+        success { echo 'Testes, empacotamento e deploy concluídos.' }
+        failure { echo 'Pipeline falhou. Consulte os testes e logs antes de fazer deploy.' }
     }
 }

@@ -1,6 +1,5 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
-import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
@@ -23,13 +22,14 @@ public final class TreePopulator extends BlockPopulator {
             int x = (chunkX << 4) + random.nextInt(16);
             int z = (chunkZ << 4) + random.nextInt(16);
             if (x * (long) x + z * (long) z < 14 * 14) continue;
-            int y = region.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-            if (y + 14 >= world.getMaxHeight() || region.getType(x, y, z) != Material.GRASS_BLOCK) continue;
+            int y = SurfaceBlocks.groundY(region, x, z, world.getMinHeight());
+            if (y + 32 >= world.getMaxHeight() || region.getType(x, y, z) != Material.GRASS_BLOCK) continue;
             Biome biome = region.getBiome(x, y, z);
             double chance = biome == Biome.PLAINS ? 0.035 : biome == Biome.DARK_FOREST ? 0.8 : 0.55;
             if (random.nextDouble() >= chance) continue;
             TreeType type = biome == Biome.BIRCH_FOREST ? TreeType.BIRCH
                     : biome == Biome.DARK_FOREST ? TreeType.DARK_OAK
+                    : biome == Biome.JUNGLE ? (random.nextInt(4) == 0 ? TreeType.JUNGLE : TreeType.SMALL_JUNGLE)
                     : random.nextInt(5) == 0 ? TreeType.BIRCH : TreeType.TREE;
             region.generateTree(new Location(region.getWorld(), x, y + 1, z), random, type);
         }

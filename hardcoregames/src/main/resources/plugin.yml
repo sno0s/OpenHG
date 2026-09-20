@@ -1,7 +1,7 @@
 name: HardcoreGamesPlugin
 version: '1.0.0'
 main: br.dev.sno0s.hgplugin.Hgplugin
-api-version: '1.21'
+api-version: '26.2'
 
 commands:
   startmatch:
@@ -20,7 +20,7 @@ commands:
     usage: /stats [jogador]
   restarthg:
     description: "Reinicia o servidor via Crafty."
-    usage: /restarthg
+    usage: /restarthg [check]
     permission: hg.plugin.restarthg
 
 permissions:

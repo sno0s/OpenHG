@@ -21,7 +21,8 @@ public class WorldGeneration {
         WorldCreator wc = new WorldCreator(worldName);
         wc.seed(ThreadLocalRandom.current().nextLong());
         wc.environment(World.Environment.NORMAL);
-        wc.generator(new HGChunkGenerator(terrain, config.getTreeDensity(), config.getMushroomDensity()));
+        wc.generator(new HGChunkGenerator(terrain, config.getTreeDensity(), config.getMushroomDensity(),
+                config.getMobSpawnMultiplier()));
         wc.biomeProvider(new HGWorldProvider(terrain));
         wc.generateStructures(false);
         World world;
@@ -31,6 +32,9 @@ public class WorldGeneration {
             throw new IllegalStateException("Falha ao limpar os dados antigos de hg_world.", e);
         }
 
+        world.getWorldBorder().setCenter(0, 0);
+        world.getWorldBorder().setSize(config.getWorldSize());
+        MobPopulation.configure(world, config.getMobSpawnMultiplier());
         Bukkit.getLogger().info("[HardcoreGames] WorldBorder e biomas aplicados.");
 
         Bukkit.getLogger().info("[HardcoreGames] Seed do mapa: " + world.getSeed());
@@ -47,7 +51,7 @@ public class WorldGeneration {
         }, 20L); // 1s — suficiente para o Paper finalizar decorações
 
         // Agenda a parede alguns ticks depois (evita travar no onEnable)
-        int wallSize = 500;
+        int wallSize = config.getWorldSize();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Bukkit.getLogger().info("[HardcoreGames] Gerando bordas.");
             MapComponents.gerarParede(plugin, world, wallSize, terrain, config.getWallHeight());

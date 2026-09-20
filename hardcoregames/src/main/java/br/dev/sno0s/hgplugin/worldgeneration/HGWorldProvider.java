@@ -18,11 +18,12 @@ public final class HGWorldProvider extends BiomeProvider {
             case FOREST -> Biome.FOREST;
             case BIRCH_FOREST -> Biome.BIRCH_FOREST;
             case DARK_FOREST -> Biome.DARK_FOREST;
+            case JUNGLE -> Biome.JUNGLE;
         };
     }
 
     @Override
     public List<Biome> getBiomes(WorldInfo world) {
-        return List.of(Biome.PLAINS, Biome.FOREST, Biome.BIRCH_FOREST, Biome.DARK_FOREST);
+        return List.of(Biome.PLAINS, Biome.FOREST, Biome.BIRCH_FOREST, Biome.DARK_FOREST, Biome.JUNGLE);
     }
 }

@@ -3,28 +3,52 @@ package br.dev.sno0s.hgplugin.utils;
 import br.dev.sno0s.hgplugin.ConfigManager;
 import br.dev.sno0s.hgplugin.Hgplugin;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitRunnable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.net.ssl.*;
-import java.net.URL;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-
-public class CraftyAPI {
-
+public final class CraftyAPI {
+    private static final AtomicBoolean RESTART_PENDING = new AtomicBoolean();
     private CraftyAPI() {}
 
-    public static void scheduleRestart() {
+    private static CraftyClient client() {
         ConfigManager cfg = Hgplugin.getConfigManager();
-        int delay = cfg.getCraftyRestartDelay();
+        return new CraftyClient(cfg.getCraftyUrl(), cfg.getCraftyApiKey(), cfg.getCraftyServerId(), 10000);
+    }
 
-        new org.bukkit.scheduler.BukkitRunnable() {
+    public static void checkConnection(CommandSender sender) {
+        final CraftyClient client;
+        try { client = client(); }
+        catch (IllegalArgumentException e) {
+            sender.sendMessage("[HardcoreGames] Crafty: " + e.getMessage());
+            return;
+        }
+        sender.sendMessage("[HardcoreGames] Consultando o Crafty...");
+        Bukkit.getScheduler().runTaskAsynchronously(Hgplugin.getInstance(), () -> {
+            CraftyClient.Result result = client.check();
+            Hgplugin.getInstance().getLogger().info("Crafty check: " + result.message());
+            Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () ->
+                    sender.sendMessage("[HardcoreGames] " + result.message()
+                            + (result.success() ? " A consulta confirma acesso ao servidor; a permissão de reinício é verificada ao reiniciar." : "")));
+        });
+    }
+
+    public static void scheduleRestart() {
+        final CraftyClient client;
+        try { client = client(); }
+        catch (IllegalArgumentException e) {
+            Hgplugin.getInstance().getLogger().warning("Crafty: " + e.getMessage());
+            Messages.broadcast("Reinício não agendado: confira a configuração do Crafty no console.");
+            return;
+        }
+        if (!RESTART_PENDING.compareAndSet(false, true)) return;
+        int delay = Math.max(0, Hgplugin.getConfigManager().getCraftyRestartDelay());
+        new BukkitRunnable() {
             int countdown = delay;
-
-            @Override
-            public void run() {
+            @Override public void run() {
                 if (countdown <= 0) {
-                    Messages.broadcast("Reiniciando o servidor...");
-                    restartAsync();
+                    Messages.broadcast("Solicitando reinício ao Crafty...");
+                    restartAsync(client);
                     cancel();
                     return;
                 }
@@ -36,59 +60,18 @@ public class CraftyAPI {
         }.runTaskTimer(Hgplugin.getInstance(), 0L, 20L);
     }
 
-    private static void restartAsync() {
+    private static void restartAsync(CraftyClient client) {
         Bukkit.getScheduler().runTaskAsynchronously(Hgplugin.getInstance(), () -> {
-            ConfigManager cfg = Hgplugin.getConfigManager();
-            String baseUrl  = cfg.getCraftyUrl();
-            String apiKey   = cfg.getCraftyApiKey();
-            String serverId = cfg.getCraftyServerId();
-
-            if (apiKey.isBlank() || serverId.isBlank()) {
-                Bukkit.getLogger().warning("[HardcoreGames] Crafty: api-key ou server-id não configurados.");
-                return;
-            }
-
-            try {
-                String endpoint = baseUrl + "/api/v2/servers/" + serverId + "/action/restart_server";
-
-                URL url = new URL(endpoint);
-                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-
-                // aceita qualquer certificado autoassinado
-                conn.setSSLSocketFactory(buildSSLSocketFactory());
-                // aceita qualquer hostname (rede local com IP)
-                conn.setHostnameVerifier((hostname, session) -> true);
-
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Authorization", "Bearer " + apiKey);
-                conn.setRequestProperty("Content-Length", "0");
-                conn.setDoOutput(false);
-                conn.connect();
-
-                int status = conn.getResponseCode();
-                if (status == 200) {
-                    Bukkit.getLogger().info("[HardcoreGames] Crafty: reinício enviado com sucesso.");
-                } else {
-                    Bukkit.getLogger().warning("[HardcoreGames] Crafty: resposta inesperada " + status);
-                }
-
-                conn.disconnect();
-
-            } catch (Exception e) {
-                Bukkit.getLogger().severe("[HardcoreGames] Crafty: falha ao enviar reinício — " + e.getMessage());
+            CraftyClient.Result result = client.restart();
+            if (result.success()) {
+                Hgplugin.getInstance().getLogger().info("Crafty: reinício aceito. " + result.message());
+                // Keep the guard until shutdown, preventing overlapping automatic restarts.
+            } else {
+                RESTART_PENDING.set(false);
+                Hgplugin.getInstance().getLogger().severe("Crafty: " + result.message());
+                Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () ->
+                        Messages.broadcast("O Crafty não confirmou o reinício. Confira o console ou use /restarthg check."));
             }
         });
-    }
-
-    private static SSLSocketFactory buildSSLSocketFactory() throws Exception {
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        ctx.init(null, new TrustManager[]{
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                    public void checkClientTrusted(X509Certificate[] c, String a) {}
-                    public void checkServerTrusted(X509Certificate[] c, String a) {}
-                }
-        }, new SecureRandom());
-        return ctx.getSocketFactory();
     }
 }

@@ -1,6 +1,5 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
-import org.bukkit.HeightMap;
 import org.bukkit.Material;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.LimitedRegion;
@@ -22,7 +21,7 @@ public final class MushroomPopulator extends BlockPopulator {
         for (int i = 0; i < tries; i++) {
             int x = (chunkX << 4) + random.nextInt(16);
             int z = (chunkZ << 4) + random.nextInt(16);
-            int y = region.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+            int y = SurfaceBlocks.groundY(region, x, z, world.getMinHeight());
             if (y + 1 >= world.getMaxHeight()) continue;
             if (SOIL.contains(region.getType(x, y, z)) && region.getType(x, y + 1, z).isAir()) {
                 region.setType(x, y + 1, z, random.nextBoolean() ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM);

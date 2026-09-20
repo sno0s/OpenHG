@@ -14,10 +14,17 @@ import java.util.Random;
 public final class HGChunkGenerator extends ChunkGenerator {
     private final TerrainProfile terrain;
     private final List<BlockPopulator> populators;
+    private final double mobSpawnMultiplier;
 
     public HGChunkGenerator(TerrainProfile terrain, int treeDensity, int mushroomDensity) {
+        this(terrain, treeDensity, mushroomDensity, 0.25);
+    }
+
+    public HGChunkGenerator(TerrainProfile terrain, int treeDensity, int mushroomDensity, double mobSpawnMultiplier) {
         this.terrain = terrain;
-        populators = List.of(new TreePopulator(treeDensity), new MushroomPopulator(mushroomDensity));
+        this.mobSpawnMultiplier = mobSpawnMultiplier;
+        populators = List.of(new TreePopulator(treeDensity), new TrashCleanPopulator(),
+                new MushroomPopulator(mushroomDensity));
     }
 
     @Override
@@ -36,6 +43,21 @@ public final class HGChunkGenerator extends ChunkGenerator {
                 data.setRegion(x, stoneStart, z, x + 1, top - 3, z + 1, Material.STONE);
                 data.setRegion(x, top - 3, z, x + 1, top, z + 1, Material.DIRT);
                 data.setBlock(x, top, z, Material.GRASS_BLOCK);
+            }
+        }
+    }
+
+    @Override
+    public void generateCaves(WorldInfo world, Random random, int chunkX, int chunkZ, ChunkData data) {
+        RavineLayout ravines = new RavineLayout(world.getSeed(), terrain.worldSize());
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int worldX = (chunkX << 4) + x, worldZ = (chunkZ << 4) + z;
+                int depth = ravines.depthAt(worldX, worldZ);
+                if (depth == 0) continue;
+                int top = surfaceHeight(world, worldX, worldZ);
+                int bottom = Math.max(data.getMinHeight() + 1, top - depth + 1);
+                data.setRegion(x, bottom, z, x + 1, top + 1, z + 1, Material.AIR);
             }
         }
     }
@@ -60,6 +82,10 @@ public final class HGChunkGenerator extends ChunkGenerator {
     @Override public boolean shouldGenerateCaves() { return true; }
     @Override public boolean shouldGenerateDecorations() { return true; }
     @Override public boolean shouldGenerateMobs() { return true; }
+    @Override
+    public boolean shouldGenerateMobs(WorldInfo world, Random random, int chunkX, int chunkZ) {
+        return random.nextDouble() < mobSpawnMultiplier;
+    }
     @Override public boolean shouldGenerateStructures() { return false; }
     @Override public boolean canSpawn(World world, int x, int z) { return Math.abs(x) <= 10 && Math.abs(z) <= 10; }
 }
