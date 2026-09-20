@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.listeners;
 
+import br.dev.sno0s.hgplugin.items.PluginItems;
 import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -19,19 +20,18 @@ public class CompassListener implements Listener {
         double raio = 150.0;
 
         if (item == null || item.getItemMeta() == null) return;
-        if (!item.getItemMeta().getDisplayName().contains("§eBússola")) return;
+        if (!PluginItems.is(item, "compass")) return;
 
         Player nearest = findNearestPlayer(p.getLocation(), raio, p);
 
         if (nearest == null) {
-            Messages.send(p, "Nenhum jogador encontrado dentro de " + Messages.hl((int) raio + " blocos") + ".");
+            Messages.send(p, "compass.no-player", "radius", (int) raio);
             return;
         }
 
         Location loc = nearest.getLocation();
         p.setCompassTarget(loc);
 
-        Messages.send(p, "Sua bússola aponta para " + Messages.hl(nearest.getName())
-                + " (" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")");
+        Messages.send(p, "compass.target", "player", nearest.getName(), "x", loc.getBlockX(), "y", loc.getBlockY(), "z", loc.getBlockZ());
     }
 }

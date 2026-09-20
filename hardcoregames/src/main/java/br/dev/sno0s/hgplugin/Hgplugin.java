@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import br.dev.sno0s.hgplugin.listeners.CompassListener;
 import br.dev.sno0s.hgplugin.listeners.DeathListener;
 import br.dev.sno0s.hgplugin.listeners.DisconnectListener;
@@ -15,7 +16,9 @@ import br.dev.sno0s.hgplugin.listeners.EnchantListener;
 import br.dev.sno0s.hgplugin.listeners.TrashBreakListener;
 import br.dev.sno0s.hgplugin.database.Database;
 import br.dev.sno0s.hgplugin.database.PlayerStatsDAO;
-import br.dev.sno0s.hgplugin.worldgeneration.TrashCleanPopulator;
+import br.dev.sno0s.hgplugin.listeners.ChunkDecorationListener;
+import br.dev.sno0s.hgplugin.listeners.ArenaStructureListener;
+import br.dev.sno0s.hgplugin.utils.SoupRecipes;
 import br.dev.sno0s.hgplugin.worldgeneration.WorldGeneration;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,25 +32,36 @@ public final class Hgplugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Bukkit.getLogger().info("[HardcoreGames] Plugin iniciado!");
         instance = this;
 
         saveDefaultConfig();
+        Messages.load(this);
+        Bukkit.getLogger().info(Messages.log("console.plugin.enabled"));
         configManager = new ConfigManager(this);
         GameState.init();
+        for (String name : java.util.List.of("startmatch", "spawnfeast", "kit", "stats", "restarthg")) {
+            var command = getCommand(name);
+            command.setDescription(Messages.text("commands." + name + ".description"));
+            command.setUsage(Messages.text("commands." + name + ".usage"));
+            command.setPermissionMessage(Messages.text("prefix") + Messages.text("common.no-permission"));
+        }
 
         database = new Database(this);
         try {
             database.connect();
             statsDAO = new PlayerStatsDAO(database);
         } catch (Exception e) {
-            getLogger().severe("[HardcoreGames] Falha ao conectar banco de dados: " + e.getMessage());
+            getLogger().severe(Messages.log("console.plugin.database-failed", "detail", e.getMessage()));
         }
 
-        // Limpeza complementar no carregamento; a limpeza inicial fica nos populators do gerador.
-        getServer().getPluginManager().registerEvents(new TrashCleanPopulator(), this);
+        ChunkDecorationListener decorations = new ChunkDecorationListener(this,
+                configManager.getMushroomDensity(), configManager.getCocoaDensity());
+        getServer().getPluginManager().registerEvents(decorations, this);
+        getServer().getPluginManager().registerEvents(new ArenaStructureListener(), this);
 
-        WorldGeneration.execute(this);
+        WorldGeneration.execute(this, decorations);
+        SoupRecipes.register(this);
+        getServer().getPluginManager().registerEvents(new br.dev.sno0s.hgplugin.listeners.MenuDragListener(), this);
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new SoupListener(), this);
@@ -74,7 +88,7 @@ public final class Hgplugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (database != null) database.disconnect();
-        getLogger().info("Plugin finalizado!");
+        getLogger().info(Messages.log("console.plugin.disabled"));
     }
 
     public static Hgplugin getInstance() {

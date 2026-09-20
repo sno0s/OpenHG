@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,7 +23,7 @@ public final class MapComponents {
             }
             if (!columns.hasNext()) {
                 task.cancel();
-                plugin.getLogger().info("[HardcoreGames] Muralha finalizada: " + size + " blocos, topo Y=" + layout.wallTop());
+                plugin.getLogger().info(Messages.log("console.map-components.wall-finished", "size", size, "height", layout.wallTop()));
             }
         }, 0L, 1L);
     }

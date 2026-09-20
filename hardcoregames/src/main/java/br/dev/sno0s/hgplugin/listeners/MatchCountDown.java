@@ -26,12 +26,12 @@ public class MatchCountDown implements Listener {
 
         Collection<? extends Player> jogadores = Bukkit.getOnlinePlayers();
         int numPlayers = jogadores.size();
-        Messages.broadcastInfo("Faltam " + Messages.hl(String.valueOf(10 - numPlayers)) + " jogadores para começar!");
+        Messages.broadcastInfo("match.waiting-players", "players", 10 - numPlayers);
 
         if (numPlayers >= 10) {
             GameState.getInstance().setPhase(MatchPhase.COUNTDOWN);
             Plugin plugin = Hgplugin.getInstance();
-            Messages.broadcastInfo("Iniciando contagem para começar a partida...");
+            Messages.broadcastInfo("match.countdown-start");
 
             new BukkitRunnable() {
                 int countdown = 30;
@@ -39,11 +39,11 @@ public class MatchCountDown implements Listener {
                 @Override
                 public void run() {
                     if (Set.of(30, 15, 5, 4, 3, 2, 1).contains(countdown)) {
-                        Messages.broadcastInfo("Partida começando em " + Messages.hl(countdown + "s") + "!");
+                        Messages.broadcastInfo("match.countdown", "seconds", countdown);
                     }
 
                     if (countdown == 0) {
-                        Messages.broadcast("A partida começou!");
+                        Messages.broadcast("match.started");
 
                         for (Player p : Bukkit.getOnlinePlayers()) {
                             p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 0.5f, 0.8f);

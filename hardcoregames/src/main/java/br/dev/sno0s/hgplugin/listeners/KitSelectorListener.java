@@ -1,11 +1,12 @@
 package br.dev.sno0s.hgplugin.listeners;
 
+import br.dev.sno0s.hgplugin.items.PluginMenu;
+import br.dev.sno0s.hgplugin.items.PluginItems;
 import br.dev.sno0s.hgplugin.GameState;
 import br.dev.sno0s.hgplugin.MatchPhase;
 import br.dev.sno0s.hgplugin.kits.Kit;
 import br.dev.sno0s.hgplugin.kits.KitRegistry;
 import br.dev.sno0s.hgplugin.utils.Messages;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +22,6 @@ import java.util.List;
 
 public class KitSelectorListener implements Listener {
 
-    private static final String GUI_TITLE = "§8Selecione seu kit";
 
     @EventHandler
     public void onKitSelectorUse(PlayerInteractEvent event) {
@@ -32,13 +32,13 @@ public class KitSelectorListener implements Listener {
 
         ItemStack item = event.getItem();
         if (item == null || !item.hasItemMeta()) return;
-        if (!"§eSeletor de Kits".equals(item.getItemMeta().getDisplayName())) return;
+        if (!PluginItems.is(item, "kit-selector")) return;
 
         event.setCancelled(true);
 
         MatchPhase phase = GameState.getInstance().getPhase();
         if (phase == MatchPhase.IN_PROGRESS || phase == MatchPhase.ENDED) {
-            Messages.error(event.getPlayer(), "Não é possível trocar de kit durante a partida.");
+            Messages.error(event.getPlayer(), "kits.match-locked");
             return;
         }
 
@@ -47,14 +47,15 @@ public class KitSelectorListener implements Listener {
 
     private void openGui(Player player) {
         List<Kit> kits = KitRegistry.getAll();
-        Inventory gui = Bukkit.createInventory(null, 54, GUI_TITLE);
+        Inventory gui = new PluginMenu(PluginMenu.Type.KITS, 54, Messages.text("menus.kits.title")).getInventory();
         for (Kit kit : kits) gui.addItem(kit.getIcon());
         player.openInventory(gui);
     }
 
     @EventHandler
     public void onKitClick(InventoryClickEvent event) {
-        if (!GUI_TITLE.equals(event.getView().getTitle())) return;
+        if (!(event.getView().getTopInventory().getHolder() instanceof PluginMenu menu)
+                || menu.getType() != PluginMenu.Type.KITS) return;
 
         event.setCancelled(true);
 
@@ -64,7 +65,9 @@ public class KitSelectorListener implements Listener {
         ItemMeta meta = clicked.getItemMeta();
         if (meta == null || !meta.hasDisplayName()) return;
 
-        String rawName = meta.getDisplayName().replaceAll("§.", "").trim();
+        if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+        String rawName = PluginItems.id(clicked);
+        if (rawName == null) return;
         Kit kit = KitRegistry.getByName(rawName);
         if (kit == null) return;
 
@@ -73,7 +76,7 @@ public class KitSelectorListener implements Listener {
         if (data == null) return;
 
         data.setSelectedKit(kit.getName());
-        Messages.success(player, "Kit " + Messages.hl(kit.getName()) + " selecionado!");
+        Messages.success(player, "kits.selected", "kit", kit.getDisplayName());
         player.closeInventory();
     }
 }

@@ -32,7 +32,7 @@ class RavineLayoutTest {
     @Test
     void generatorCarvesTheSameWorldCoordinatesAcrossChunkBoundariesAndPreservesBedrock() {
         TerrainProfile terrain = TerrainProfile.classic();
-        HGChunkGenerator generator = new HGChunkGenerator(terrain, 0, 0);
+        HGChunkGenerator generator = new HGChunkGenerator(terrain, 0, .25);
         WorldInfo world = mock(WorldInfo.class);
         when(world.getSeed()).thenReturn(42L);
         when(world.getMinHeight()).thenReturn(-64);

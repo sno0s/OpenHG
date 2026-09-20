@@ -5,22 +5,12 @@ api-version: '26.2'
 
 commands:
   startmatch:
-    description: "Inicia jogo mesmo que não contenha nenhum jogador."
-    usage: /startmatch
     permission: hg.plugin.startmatch
   spawnfeast:
-    description: "Spawn o Feast na localização do jogador (para testes)."
-    usage: /spawnfeast
     permission: hg.plugin.spawnfeast
-  kit:
-    description: "Seleciona um kit para a partida."
-    usage: /kit <nome>
-  stats:
-    description: "Exibe estatísticas de um jogador."
-    usage: /stats [jogador]
+  kit: {}
+  stats: {}
   restarthg:
-    description: "Reinicia o servidor via Crafty."
-    usage: /restarthg [check]
     permission: hg.plugin.restarthg
 
 permissions:

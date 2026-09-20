@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class CraftyAPI {
     private static final AtomicBoolean RESTART_PENDING = new AtomicBoolean();
+
     private CraftyAPI() {}
 
     private static CraftyClient client() {
@@ -18,42 +19,49 @@ public final class CraftyAPI {
 
     public static void checkConnection(CommandSender sender) {
         final CraftyClient client;
-        try { client = client(); }
-        catch (IllegalArgumentException e) {
-            sender.sendMessage("[HardcoreGames] Crafty: " + e.getMessage());
+        try {
+            client = client();
+        } catch (IllegalArgumentException e) {
+            Messages.error(sender, "crafty.error", "detail", e.getMessage());
             return;
         }
-        sender.sendMessage("[HardcoreGames] Consultando o Crafty...");
+        Messages.send(sender, "crafty.checking", "address", client.getAddress());
         Bukkit.getScheduler().runTaskAsynchronously(Hgplugin.getInstance(), () -> {
             CraftyClient.Result result = client.check();
-            Hgplugin.getInstance().getLogger().info("Crafty check: " + result.message());
-            Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () ->
-                    sender.sendMessage("[HardcoreGames] " + result.message()
-                            + (result.success() ? " A consulta confirma acesso ao servidor; a permissão de reinício é verificada ao reiniciar." : "")));
+            Hgplugin.getInstance().getLogger().info(Messages.log("console.crafty.check", "detail", result.message()));
+            Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () -> {
+                if (result.success()) {
+                    Messages.success(sender, "crafty.check-success", "detail", result.message());
+                } else {
+                    Messages.error(sender, "crafty.result", "detail", result.message());
+                }
+            });
         });
     }
 
     public static void scheduleRestart() {
         final CraftyClient client;
-        try { client = client(); }
-        catch (IllegalArgumentException e) {
-            Hgplugin.getInstance().getLogger().warning("Crafty: " + e.getMessage());
-            Messages.broadcast("Reinício não agendado: confira a configuração do Crafty no console.");
+        try {
+            client = client();
+        } catch (IllegalArgumentException e) {
+            Hgplugin.getInstance().getLogger().warning(Messages.log("console.crafty.configuration-error", "detail", e.getMessage()));
+            Messages.broadcast("crafty.restart-not-scheduled");
             return;
         }
         if (!RESTART_PENDING.compareAndSet(false, true)) return;
         int delay = Math.max(0, Hgplugin.getConfigManager().getCraftyRestartDelay());
         new BukkitRunnable() {
             int countdown = delay;
-            @Override public void run() {
+            @Override
+            public void run() {
                 if (countdown <= 0) {
-                    Messages.broadcast("Solicitando reinício ao Crafty...");
+                    Messages.broadcast("crafty.requesting-restart");
                     restartAsync(client);
                     cancel();
                     return;
                 }
                 if (countdown == delay || countdown <= 5) {
-                    Messages.broadcast("Servidor reiniciando em " + Messages.hl(countdown + "s") + "!");
+                    Messages.broadcast("crafty.countdown", "seconds", countdown);
                 }
                 countdown--;
             }
@@ -64,13 +72,13 @@ public final class CraftyAPI {
         Bukkit.getScheduler().runTaskAsynchronously(Hgplugin.getInstance(), () -> {
             CraftyClient.Result result = client.restart();
             if (result.success()) {
-                Hgplugin.getInstance().getLogger().info("Crafty: reinício aceito. " + result.message());
-                // Keep the guard until shutdown, preventing overlapping automatic restarts.
+                Hgplugin.getInstance().getLogger().info(Messages.log("console.crafty.restart-accepted", "detail", result.message()));
+                // Mantém a trava até desligar para evitar pedidos de reinício simultâneos.
             } else {
                 RESTART_PENDING.set(false);
-                Hgplugin.getInstance().getLogger().severe("Crafty: " + result.message());
+                Hgplugin.getInstance().getLogger().severe(Messages.log("console.crafty.restart-failed", "detail", result.message()));
                 Bukkit.getScheduler().runTask(Hgplugin.getInstance(), () ->
-                        Messages.broadcast("O Crafty não confirmou o reinício. Confira o console ou use /restarthg check."));
+                        Messages.broadcast("crafty.restart-unconfirmed"));
             }
         });
     }

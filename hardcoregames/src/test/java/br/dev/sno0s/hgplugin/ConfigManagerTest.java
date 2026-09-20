@@ -16,6 +16,7 @@ class ConfigManagerTest {
         assertTrue(ConfigManager.migrateTerrainDefaults(config));
         assertEquals(0.008, config.getDouble("HGconfigs.terrain.biome-frequency"));
         assertEquals(-0.15, config.getDouble("HGconfigs.terrain.plains-weight"));
+        assertEquals(12, config.getInt("HGconfigs.cocoa-density"));
         assertEquals(750, config.getInt("HGconfigs.world-size"));
         assertEquals(.25, config.getDouble("HGconfigs.mob-spawn-multiplier"));
         config.set("HGconfigs.terrain.plains-weight", 0.2);
@@ -27,8 +28,11 @@ class ConfigManagerTest {
     void addsArenaSettingsToVersionTwoAndPreservesCustomValues() {
         YamlConfiguration config = new YamlConfiguration();
         config.set("HGconfigs.terrain.generator-version", 2);
+        config.set("HGconfigs.terrain.plains-weight", -.15);
         assertTrue(ConfigManager.migrateTerrainDefaults(config));
         assertEquals(750, config.getInt("HGconfigs.world-size"));
+        assertEquals(-.15, config.getDouble("HGconfigs.terrain.plains-weight"));
+        assertEquals(3, config.getInt("HGconfigs.terrain.generator-version"));
         config.set("HGconfigs.world-size", 1200);
         config.set("HGconfigs.mob-spawn-multiplier", .5);
         assertFalse(ConfigManager.migrateTerrainDefaults(config));

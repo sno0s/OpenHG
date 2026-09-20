@@ -30,7 +30,7 @@ public class PlayerJoinListener implements Listener {
         GameState state = GameState.getInstance();
         MatchPhase phase = state.getPhase();
 
-        Messages.broadcastInfo(Messages.hl(player.getName()) + " entrou no servidor!");
+        Messages.broadcastInfo("join.announcement", "player", player.getName());
 
         DisconnectListener.cancelElimination(player.getUniqueId());
         removeAttackCooldown(player);
@@ -54,17 +54,17 @@ public class PlayerJoinListener implements Listener {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setInvulnerable(false);
                 player.getInventory().setItem(8, Compass.create());
-                Messages.send(player, "Bem-vindo de volta! A partida está em andamento.");
+                Messages.send(player, "join.returning");
             } else {
                 player.setGameMode(GameMode.SPECTATOR);
                 player.setInvulnerable(true);
-                Messages.send(player, "A partida já começou. Você está no modo espectador.");
+                Messages.send(player, "join.spectator");
             }
 
         } else { // ENDED
             player.setGameMode(GameMode.SPECTATOR);
             player.setInvulnerable(true);
-            Messages.send(player, "A partida terminou. Aguarde o próximo round.");
+            Messages.send(player, "join.ended");
         }
     }
 

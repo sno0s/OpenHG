@@ -4,7 +4,7 @@ import org.bukkit.HeightMap;
 import org.bukkit.Material;
 import org.bukkit.RegionAccessor;
 
-/** Finds ground below trees and vegetation instead of treating the canopy as soil. */
+/** Localiza o solo abaixo das copas e da vegetação. */
 final class SurfaceBlocks {
     private SurfaceBlocks() {}
 
@@ -20,7 +20,9 @@ final class SurfaceBlocks {
         while (y > minY) {
             Material type = region.getType(x, y, z);
             if (!type.isAir() && !isCanopy(type) && !TrashCleanPopulator.CLEAR_BLOCKS.contains(type)
-                    && (type.isSolid() || type == Material.WATER || type == Material.LAVA)) return y;
+                    && (type.isSolid() || type == Material.WATER || type == Material.LAVA)) {
+                return y;
+            }
             y--;
         }
         return minY;

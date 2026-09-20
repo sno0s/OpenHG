@@ -69,11 +69,11 @@ public class StartMatch {
             public void run() {
                 if (countdown == 105 || countdown == 30 || countdown == 15
                         || (countdown <= 5 && countdown > 0)) {
-                    Messages.broadcastInfo("Faltam " + Messages.hl(countdown + "s") + " de invencibilidade.");
+                    Messages.broadcastInfo("match.invincibility-countdown", "seconds", countdown);
                 }
 
                 if (countdown == 0) {
-                    Messages.broadcastInfo("A invencibilidade acabou!");
+                    Messages.broadcastInfo("match.invincibility-ended");
 
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         p.setInvulnerable(false);
@@ -93,16 +93,16 @@ public class StartMatch {
         int feastX = rng.nextInt(range * 2 + 1) - range;
         int feastZ = rng.nextInt(range * 2 + 1) - range;
 
-        String feastCoords = Messages.hl("X: " + feastX + " Z: " + feastZ);
+        String feastCoords = Messages.text("feast.coordinates", "x", feastX, "z", feastZ);
 
         // Aviso 5 minutos antes
         Bukkit.getScheduler().runTaskLater(plugin, () ->
-            Messages.broadcast("O Feast spawna em " + Messages.hl("5 minutos") + " em " + feastCoords + "!"),
+            Messages.broadcast("feast.five-minutes", "coordinates", feastCoords),
         20L * 60 * 5); // 6000 ticks
 
         // Aviso 1 minuto antes
         Bukkit.getScheduler().runTaskLater(plugin, () ->
-            Messages.broadcast("O Feast spawna em " + Messages.hl("1 minuto") + " em " + feastCoords + "!"),
+            Messages.broadcast("feast.one-minute", "coordinates", feastCoords),
         20L * 60 * 9); // 10800 ticks
 
         // Contagem de 15 segundos (começa em 9min45s)
@@ -112,7 +112,7 @@ public class StartMatch {
                 @Override
                 public void run() {
                     if (sec > 0) {
-                        Messages.broadcast("Feast em " + Messages.hl(sec + "s") + "!");
+                        Messages.broadcast("feast.countdown", "seconds", sec);
                         sec--;
                     } else {
                         cancel();
@@ -126,7 +126,7 @@ public class StartMatch {
             World world = Bukkit.getWorld("hg_world");
             if (world != null) {
                 Feast.spawnFeast(new Location(world, feastX, 0, feastZ));
-                Messages.broadcast("O Feast spawnou em " + Messages.hl("X: " + feastX + " Z: " + feastZ) + "!");
+                Messages.broadcast("feast.spawned", "coordinates", Messages.text("feast.coordinates", "x", feastX, "z", feastZ));
             }
         }, 20L * 60 * 10); // 12000 ticks
     }

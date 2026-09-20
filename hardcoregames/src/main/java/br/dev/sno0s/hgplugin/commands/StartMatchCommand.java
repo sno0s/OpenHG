@@ -12,10 +12,10 @@ public class StartMatchCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            Bukkit.getLogger().info("[HardcoreGames] Console forçou início da partida.");
+            Bukkit.getLogger().info(Messages.log("console.start-match-command.console-start"));
         } else {
-            Messages.send(player, "Você iniciou a partida.");
-            Bukkit.getLogger().info("[HardcoreGames] " + player.getName() + " iniciou a partida.");
+            Messages.send(player, "match.started-by-you");
+            Bukkit.getLogger().info(Messages.log("console.start-match-command.player-start", "player", player.getName()));
         }
 
         br.dev.sno0s.hgplugin.utils.StartMatch.execute();

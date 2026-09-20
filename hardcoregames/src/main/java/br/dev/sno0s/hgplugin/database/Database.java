@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.database;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -23,7 +24,7 @@ public class Database {
 
         connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
         createTable();
-        plugin.getLogger().info("[HardcoreGames] Banco de dados conectado.");
+        plugin.getLogger().info(Messages.log("console.database.connected"));
     }
 
     private void createTable() throws SQLException {
@@ -57,10 +58,10 @@ public class Database {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
-                plugin.getLogger().info("[HardcoreGames] Banco de dados desconectado.");
+                plugin.getLogger().info(Messages.log("console.database.disconnected"));
             }
         } catch (SQLException e) {
-            plugin.getLogger().warning("[HardcoreGames] Erro ao fechar banco: " + e.getMessage());
+            plugin.getLogger().warning(Messages.log("console.database.close-failed", "detail", e.getMessage()));
         }
     }
 }

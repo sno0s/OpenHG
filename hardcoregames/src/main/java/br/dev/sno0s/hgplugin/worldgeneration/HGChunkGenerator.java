@@ -10,21 +10,16 @@ import org.bukkit.generator.WorldInfo;
 import java.util.List;
 import java.util.Random;
 
-/** Gentle classic HG terrain; vanilla still supplies caves, ores and biome features. */
+/** Terreno de HG com cavernas, minérios e estruturas da geração vanilla. */
 public final class HGChunkGenerator extends ChunkGenerator {
     private final TerrainProfile terrain;
     private final List<BlockPopulator> populators;
     private final double mobSpawnMultiplier;
 
-    public HGChunkGenerator(TerrainProfile terrain, int treeDensity, int mushroomDensity) {
-        this(terrain, treeDensity, mushroomDensity, 0.25);
-    }
-
-    public HGChunkGenerator(TerrainProfile terrain, int treeDensity, int mushroomDensity, double mobSpawnMultiplier) {
+    public HGChunkGenerator(TerrainProfile terrain, int treeDensity, double mobSpawnMultiplier) {
         this.terrain = terrain;
         this.mobSpawnMultiplier = mobSpawnMultiplier;
-        populators = List.of(new TreePopulator(treeDensity), new TrashCleanPopulator(),
-                new MushroomPopulator(mushroomDensity));
+        populators = List.of(new TreePopulator(treeDensity), new TrashCleanPopulator());
     }
 
     @Override
@@ -32,7 +27,10 @@ public final class HGChunkGenerator extends ChunkGenerator {
         int minY = data.getMinHeight();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int top = surfaceHeight(world, (chunkX << 4) + x, (chunkZ << 4) + z);
+                int worldX = (chunkX << 4) + x;
+                int worldZ = (chunkZ << 4) + z;
+                int top = surfaceHeight(world, worldX, worldZ);
+                boolean desert = terrain.biomeAt(world.getSeed(), worldX, worldZ) == TerrainProfile.Landscape.DESERT;
                 data.setBlock(x, minY, z, Material.BEDROCK);
                 int stoneStart = minY + 1;
                 if (stoneStart < 0) {
@@ -41,8 +39,8 @@ public final class HGChunkGenerator extends ChunkGenerator {
                     stoneStart = deepEnd;
                 }
                 data.setRegion(x, stoneStart, z, x + 1, top - 3, z + 1, Material.STONE);
-                data.setRegion(x, top - 3, z, x + 1, top, z + 1, Material.DIRT);
-                data.setBlock(x, top, z, Material.GRASS_BLOCK);
+                data.setRegion(x, top - 3, z, x + 1, top, z + 1, desert ? Material.SANDSTONE : Material.DIRT);
+                data.setBlock(x, top, z, desert ? Material.SAND : Material.GRASS_BLOCK);
             }
         }
     }
@@ -73,19 +71,47 @@ public final class HGChunkGenerator extends ChunkGenerator {
 
     @Override
     public List<BlockPopulator> getDefaultPopulators(World world) {
-        // Registered before spawn chunks are generated.
+        // Registrados antes da geração dos chunks iniciais.
         return populators;
     }
 
-    @Override public boolean shouldGenerateNoise() { return false; }
-    @Override public boolean shouldGenerateSurface() { return false; }
-    @Override public boolean shouldGenerateCaves() { return true; }
-    @Override public boolean shouldGenerateDecorations() { return true; }
-    @Override public boolean shouldGenerateMobs() { return true; }
+    @Override
+    public boolean shouldGenerateNoise() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldGenerateSurface() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldGenerateCaves() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateDecorations() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateMobs() {
+        return true;
+    }
+
     @Override
     public boolean shouldGenerateMobs(WorldInfo world, Random random, int chunkX, int chunkZ) {
         return random.nextDouble() < mobSpawnMultiplier;
     }
-    @Override public boolean shouldGenerateStructures() { return false; }
-    @Override public boolean canSpawn(World world, int x, int z) { return Math.abs(x) <= 10 && Math.abs(z) <= 10; }
+    @Override
+    public boolean shouldGenerateStructures() {
+        return true;
+    }
+
+    @Override
+    public boolean canSpawn(World world, int x, int z) {
+        return Math.abs(x) <= 10 && Math.abs(z) <= 10;
+    }
+
 }

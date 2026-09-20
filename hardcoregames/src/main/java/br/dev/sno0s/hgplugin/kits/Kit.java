@@ -1,10 +1,11 @@
 package br.dev.sno0s.hgplugin.kits;
 
+import br.dev.sno0s.hgplugin.items.PluginItems;
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.List;
 
 public abstract class Kit {
 
@@ -13,6 +14,10 @@ public abstract class Kit {
     // -------------------------
 
     public abstract String getName();
+
+    public String getDisplayName() {
+        return Messages.text("kits." + getName().toLowerCase(java.util.Locale.ROOT) + ".name");
+    }
 
     public abstract String getDescription();
 
@@ -26,8 +31,9 @@ public abstract class Kit {
         ItemStack icon = getIconMaterial();
         ItemMeta meta = icon.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName("§e" + getName());
-            meta.setLore(List.of("§7" + getDescription()));
+            meta.setDisplayName(Messages.text("menus.kits.icon-name", "kit", getDisplayName()));
+            PluginItems.mark(meta, getName());
+            meta.setLore(Messages.lines("menus.kits.icon-lore", "description", getDescription()));
             icon.setItemMeta(meta);
         }
         return icon;

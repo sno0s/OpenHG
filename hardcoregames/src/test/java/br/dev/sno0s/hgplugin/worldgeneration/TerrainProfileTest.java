@@ -79,8 +79,17 @@ class TerrainProfileTest {
     void mountainsAreLocalizedAndSpawnStaysFlat() {
         TerrainProfile terrain = TerrainProfile.classic();
         for (long seed = -20; seed <= 20; seed++) {
-            int direction = (seed & 1) == 0 ? 1 : -1;
-            assertTrue(terrain.heightAt(seed, 170, direction * 150) >= 80);
+            for (int cx : new int[]{-170, 170}) {
+                for (int cz : new int[]{-150, 150}) {
+                    int peak = 0;
+                    for (int x = cx - 20; x <= cx + 20; x++) {
+                        for (int z = cz - 20; z <= cz + 20; z++) {
+                            peak = Math.max(peak, terrain.heightAt(seed, x, z));
+                        }
+                    }
+                    assertTrue(peak >= 80, "Missing mountain in quadrant " + cx + "," + cz);
+                }
+            }
             int high = 0, total = 0;
             for (int x = -375; x <= 375; x += 5) {
                 for (int z = -375; z <= 375; z += 5) {

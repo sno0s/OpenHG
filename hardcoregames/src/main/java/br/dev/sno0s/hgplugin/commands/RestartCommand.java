@@ -15,7 +15,7 @@ public class RestartCommand implements CommandExecutor {
             return true;
         }
         if (args.length != 0) return false;
-        Messages.broadcast("Reinício solicitado por " + Messages.hl(sender.getName()) + "!");
+        Messages.broadcast("restart.requested", "player", sender.getName());
         CraftyAPI.scheduleRestart();
         return true;
     }

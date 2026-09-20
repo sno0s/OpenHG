@@ -1,7 +1,9 @@
 # Geração de mapas HG
 
-O mapa usa planícies, florestas de carvalho, bétulas, florestas escuras e jungle,
-com colinas largas, suaves e duas montanhas localizadas. É um preset inspirado no HG clássico; não reproduz
+O mapa usa planícies, florestas comuns, florestas escuras, jungle e deserto.
+O bioma de bétulas foi retirado; árvores individuais de bétula ainda podem fazer
+parte das florestas comuns. Há colinas suaves e quatro montanhas localizadas.
+É um preset inspirado no HG clássico; não reproduz
 exatamente o gerador do Minecraft 1.8.
 
 A cada inicialização, o plugin recria somente `hg_world` com uma seed aleatória
@@ -13,7 +15,7 @@ São aceitos valores pares entre 256 e 10000; valores inválidos usam 750 com av
 
 Cada seed tem uma região garantida de cada um dos cinco biomas, com bordas
 irregulares. Fora dessas regiões, a distribuição segue o ruído de temperatura e
-umidade. As duas montanhas acrescentam até 24 blocos ao relevo padrão e ocupam
+umidade. As quatro montanhas acrescentam até 24 blocos ao relevo padrão e ocupam
 uma parte pequena da arena; `height-variation: 0` também desliga as montanhas.
 Três ravinas de superfície são garantidas por seed, longe do centro e da muralha.
 No tamanho padrão, têm cerca de 90–130 blocos de comprimento, 6–10 de largura
@@ -27,13 +29,29 @@ somente seus dados e recria o mundo. Se o descarregamento falhar, nada é
 apagado. O caminho real e as seeds anterior/nova aparecem no console.
 
 As árvores nativas recebem um reforço por bioma; planícies continuam abertas.
-Árvores e cogumelos são registrados antes da geração dos chunks iniciais.
-Depois das decorações vanilla e do reforço de árvores, a limpeza remove grama,
-flores e outras plantas indesejadas, inclusive sob copas. Só então os cogumelos
-são colocados sobre o solo livre. A limpeza posterior dos chunks preserva os
-cogumelos. A jungle recebe árvores próprias desse bioma.
-Cavernas, minérios e decorações dos biomas continuam habilitados. Estruturas
-vanilla, como vilas, ficam desabilitadas neste mapa de arena.
+Os listeners são registrados antes da geração dos chunks iniciais. Depois da
+geração, no próximo tick, a limpeza remove grama, flores e folhas secas
+(`LEAF_LITTER`), inclusive sob copas. A altura é medida com `WORLD_SURFACE`,
+que inclui as plantas baixas ignoradas pelo heightmap de movimento.
+
+Os cogumelos voltaram à colocação no chunk pronto com `setType(..., false)`,
+como no populator do commit `1ce5691`. O valor `mushroom-density` agora é o alvo
+de quantidade, e não um número de tentativas que podem falhar: 40 tenta atingir
+40–50 cogumelos por chunk, limitado ao solo livre disponível. As posições não
+se repetem, e cogumelos existentes contam para o alvo. Plains também recebe o
+populator. A jungle não recebe cogumelos pequenos, e os nativos são removidos
+na limpeza; o solo de areia do deserto não é elegível.
+
+O cacau é reforçado nos troncos da jungle, entre um e cinco blocos acima do solo,
+com frutos maduros. `cocoa-density: 12` adiciona até 12 frutos por chunk quando
+há troncos e espaço; 0 mantém somente o cacau vanilla. Um marcador persistente
+no chunk impede a reposição de cogumelos/cacau coletados ao recarregar a área.
+A limpeza continua sendo aplicada a cada carregamento.
+
+Cavernas, minérios, cactos e demais decorações dos biomas seguem habilitados.
+Vilas e templos do deserto podem aparecer segundo as regras e o espaçamento
+vanilla de cada seed; sua presença dentro da arena não é garantida.
+As demais estruturas são bloqueadas apenas em `hg_world`.
 
 Animais e monstros usam 25% dos limites de população normais apenas em `hg_world`.
 Os limites inteiros são arredondados para baixo; os animais criados durante a
@@ -55,8 +73,9 @@ HGconfigs:
   mob-spawn-multiplier: 0.25
   tree-density: 1
   mushroom-density: 40
+  cocoa-density: 12
   terrain:
-    generator-version: 2
+    generator-version: 3
     base-height: 68
     height-variation: 12
     hill-frequency: 0.006
@@ -76,14 +95,27 @@ HGconfigs:
 - `dark-forest-weight`: aumentar favorece florestas escuras (-1 a 1).
 - `tree-density`: reforço de árvores; 0 mantém só as árvores vanilla,
   1 é o padrão e 2 aumenta o reforço (máximo 8).
+- `mushroom-density`: alvo de cogumelos por chunk, mais 0–10; 0 desliga o reforço.
+- `cocoa-density`: limite de frutos extras por chunk de jungle, de 0 a 256.
 - `wall.height`: altura sobre o ponto mais alto do perímetro (6 a 24).
 
 Na primeira execução desta versão, os antigos valores padrão
 `biome-frequency: 0.003` e `plains-weight: 0.2` são migrados para o novo
 preset. Outros valores personalizados são preservados. A marca
-`generator-version: 2` impede que a migração se repita.
+`generator-version: 3` impede que a migração se repita.
 As novas chaves `world-size` e `mob-spawn-multiplier` são adicionadas também às
-configurações existentes, sem substituir valores já definidos.
+configurações existentes, sem substituir valores já definidos. `cocoa-density`
+também é adicionada às configurações existentes com valor 12.
+
+## Receitas de sopa
+
+As duas receitas não exigem ordem na grade e funcionam na grade 2×2 do jogador:
+
+- Uma tigela + um cacau (`COCOA_BEANS`) → uma sopa de cogumelos.
+- Uma tigela + um cacto (`CACTUS`) → uma sopa de cogumelos.
+
+O resultado é `MUSHROOM_STEW` normal, portanto usa a mesma cura, alimentação e
+devolução da tigela do `SoupListener`. A receita vanilla de cogumelos continua.
 
 ## Compilar e instalar
 
@@ -117,7 +149,10 @@ O cliente aceita URL HTTP ou HTTPS, normaliza barra final e sufixo `/api/v2`,
 aceita a chave com ou sem `Bearer` e usa timeout de 10 segundos para conexão
 e leitura. Mantém o suporte existente ao certificado autoassinado local do Crafty.
 O console distingue HTTP 401 (token), 403 (permissão), 404 (endereço/servidor),
-redirecionamentos, timeout e erros TLS. Tokens e corpos completos não são registrados.
+redirecionamentos, timeout, DNS, falta de rota, `ConnectException` e erros TLS.
+O check informa o endereço e a porta realmente usados. As mensagens ao jogador
+passam pelo utilitário `Messages`, com o prefixo e as cores do projeto.
+Tokens e corpos completos não são registrados.
 
 O endereço configurado é `https://10.170.184.252:8111`; o IP final `.252` foi
 confirmado. Não inclua `/#/` na URL da API. Na verificação local, a porta aceitou
@@ -125,5 +160,20 @@ TCP, mas o handshake HTTPS expirou. Existe rota para `10.170.184.0/24` pela
 ZeroTier. Não houve chamada de reinício ao servidor real; execute o diagnóstico
 no ambiente do servidor para confirmar a causa operacional.
 
+O endpoint documentado de reinício é
+`POST /api/v2/servers/{serverID}/action/restart_server`, com
+`Authorization: Bearer <api-key>` e permissão de comandos no servidor.
+O check usa `GET /api/v2/servers/{serverID}`. `ConnectException` acontece antes
+de obter uma resposta HTTP: trocar token ou caminho da API não resolve uma
+porta inacessível. O endereço precisa funcionar a partir do processo Minecraft,
+não apenas do navegador do administrador.
+
+O padrão do Crafty é HTTPS na porta 8443. A porta 8111 pode ser um mapeamento
+externo, por exemplo `8111:8443`. Se Minecraft e Crafty estiverem no mesmo
+container, o endereço interno costuma ser `https://127.0.0.1:8443`; se estiverem
+em containers separados, use o nome/IP e a porta acessíveis pela rede deles.
+Não foi feita troca automática do endereço, pois depende dessa instalação.
+
 Referências: [Paper 26.2 e Java](https://docs.papermc.io/paper/dev/project-setup/),
 [API v2 do Crafty](https://docs.craftycontrol.com/pages/developer-guide/api-reference/v2/).
+Veja também [portas e mapeamentos Docker](https://docs.craftycontrol.com/pages/getting-started/installation/docker/).

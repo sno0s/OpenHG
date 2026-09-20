@@ -16,14 +16,14 @@ public final class HGWorldProvider extends BiomeProvider {
         return switch (terrain.biomeAt(world.getSeed(), x, z)) {
             case PLAINS -> Biome.PLAINS;
             case FOREST -> Biome.FOREST;
-            case BIRCH_FOREST -> Biome.BIRCH_FOREST;
             case DARK_FOREST -> Biome.DARK_FOREST;
             case JUNGLE -> Biome.JUNGLE;
+            case DESERT -> Biome.DESERT;
         };
     }
 
     @Override
     public List<Biome> getBiomes(WorldInfo world) {
-        return List.of(Biome.PLAINS, Biome.FOREST, Biome.BIRCH_FOREST, Biome.DARK_FOREST, Biome.JUNGLE);
+        return List.of(Biome.PLAINS, Biome.FOREST, Biome.DARK_FOREST, Biome.JUNGLE, Biome.DESERT);
     }
 }

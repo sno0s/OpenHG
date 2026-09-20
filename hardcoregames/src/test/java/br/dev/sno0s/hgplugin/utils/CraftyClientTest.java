@@ -75,6 +75,22 @@ class CraftyClientTest {
     }
 
     @Test
+    void refusedConnectionIdentifiesAddressAndFailureBeforeTheApi() throws Exception {
+        int port;
+        try (var socket = new java.net.ServerSocket(0, 0, java.net.InetAddress.getLoopbackAddress())) {
+            port = socket.getLocalPort();
+        }
+        String address = "http://127.0.0.1:" + port;
+        CraftyClient.Result result = new CraftyClient(address, "test-token", "server-123", 500).check();
+        assertFalse(result.success());
+        assertEquals(0, result.status());
+        assertTrue(result.message().contains("ConnectException"));
+        assertTrue(result.message().contains(address));
+        assertTrue(result.message().contains("A API não respondeu"));
+        assertFalse(result.message().contains("test-token"));
+    }
+
+    @Test
     void invalidConfigurationFailsBeforeSendingAnything() {
         assertThrows(IllegalArgumentException.class, () -> new CraftyClient("file:///tmp", "token", "id", 1000));
         assertThrows(IllegalArgumentException.class, () -> new CraftyClient(url, "", "id", 1000));

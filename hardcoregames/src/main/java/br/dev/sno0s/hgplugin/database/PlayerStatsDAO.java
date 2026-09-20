@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.database;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
@@ -29,7 +30,7 @@ public class PlayerStatsDAO {
             ps.setString(2, name);
             ps.executeUpdate();
         } catch (SQLException e) {
-            log("Erro ao criar jogador: " + e.getMessage());
+            log(Messages.text("console.stats-database.create-failed", "detail", e.getMessage()));
         }
     }
 
@@ -60,7 +61,7 @@ public class PlayerStatsDAO {
             ps.setString(2, uuid.toString());
             ps.executeUpdate();
         } catch (SQLException e) {
-            log("Erro ao atualizar last_kit: " + e.getMessage());
+            log(Messages.text("console.stats-database.kit-update-failed", "detail", e.getMessage()));
         }
     }
 
@@ -71,7 +72,7 @@ public class PlayerStatsDAO {
             ps.setString(2, uuid.toString());
             ps.executeUpdate();
         } catch (SQLException e) {
-            log("Erro ao incrementar " + column + ": " + e.getMessage());
+            log(Messages.text("console.stats-database.increment-failed", "column", column, "detail", e.getMessage()));
         }
     }
 
@@ -86,7 +87,7 @@ public class PlayerStatsDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return fromResultSet(rs);
         } catch (SQLException e) {
-            log("Erro ao carregar stats: " + e.getMessage());
+            log(Messages.text("console.stats-database.load-failed", "detail", e.getMessage()));
         }
         return null;
     }
@@ -98,7 +99,7 @@ public class PlayerStatsDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return fromResultSet(rs);
         } catch (SQLException e) {
-            log("Erro ao buscar jogador por nome: " + e.getMessage());
+            log(Messages.text("console.stats-database.find-failed", "detail", e.getMessage()));
         }
         return null;
     }
@@ -121,7 +122,7 @@ public class PlayerStatsDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(fromResultSet(rs));
         } catch (SQLException e) {
-            log("Erro ao buscar ranking: " + e.getMessage());
+            log(Messages.text("console.stats-database.ranking-failed", "detail", e.getMessage()));
         }
         return list;
     }
@@ -147,6 +148,6 @@ public class PlayerStatsDAO {
     }
 
     private void log(String msg) {
-        Bukkit.getLogger().warning("[HardcoreGames] " + msg);
+        Bukkit.getLogger().warning(Messages.log("database.detail", "detail", msg));
     }
 }

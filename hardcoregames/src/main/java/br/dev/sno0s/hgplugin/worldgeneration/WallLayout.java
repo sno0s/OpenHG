@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public final class WallLayout {
 
     public WallLayout(TerrainProfile terrain, long seed, int size, int height) {
         if (size < 64 || size % 2 != 0 || height < 6 || height > 24) {
-            throw new IllegalArgumentException("Invalid wall dimensions");
+            throw new IllegalArgumentException(Messages.text("console.wall-layout.invalid-dimensions"));
         }
         int half = size / 2;
         int highest = Integer.MIN_VALUE;

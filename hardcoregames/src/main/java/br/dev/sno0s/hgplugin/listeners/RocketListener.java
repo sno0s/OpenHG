@@ -1,10 +1,9 @@
 package br.dev.sno0s.hgplugin.listeners;
 
+import br.dev.sno0s.hgplugin.items.PluginItems;
 import br.dev.sno0s.hgplugin.GameState;
 import br.dev.sno0s.hgplugin.Hgplugin;
-import br.dev.sno0s.hgplugin.items.Rocket;
 import br.dev.sno0s.hgplugin.utils.Messages;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -45,7 +44,7 @@ public class RocketListener implements Listener {
 
         ItemStack item = event.getItem();
         if (item == null || !item.hasItemMeta()) return;
-        if (!Rocket.DISPLAY_NAME.equals(item.getItemMeta().getDisplayName())) return;
+        if (!PluginItems.is(item, "rocket")) return;
 
         event.setCancelled(true);
 
@@ -56,7 +55,7 @@ public class RocketListener implements Listener {
         Long expiry = hitCooldownExpiry.get(uuid);
         if (expiry != null && System.currentTimeMillis() < expiry) {
             long remainingSeconds = (expiry - System.currentTimeMillis()) / 1000 + 1;
-            Messages.error(player, "Foguete bloqueado por " + Messages.hl(remainingSeconds + "s") + " (levou hit).");
+            Messages.error(player, "kits.kangaroo.cooldown", "seconds", remainingSeconds);
             return;
         }
 

@@ -1,11 +1,11 @@
 package br.dev.sno0s.hgplugin.listeners;
 
+import br.dev.sno0s.hgplugin.items.PluginMenu;
+import br.dev.sno0s.hgplugin.items.PluginItems;
 import br.dev.sno0s.hgplugin.Hgplugin;
 import br.dev.sno0s.hgplugin.database.PlayerStats;
 import br.dev.sno0s.hgplugin.database.PlayerStatsDAO;
-import br.dev.sno0s.hgplugin.items.StatsItem;
 import br.dev.sno0s.hgplugin.utils.Messages;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,7 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.List;
 
 public class StatsListener implements Listener {
 
@@ -31,20 +30,20 @@ public class StatsListener implements Listener {
 
         ItemStack item = event.getItem();
         if (item == null || !item.hasItemMeta()) return;
-        if (!StatsItem.DISPLAY_NAME.equals(item.getItemMeta().getDisplayName())) return;
+        if (!PluginItems.is(item, "stats")) return;
 
         event.setCancelled(true);
 
         Player player = event.getPlayer();
         PlayerStatsDAO dao = Hgplugin.getStatsDAO();
         if (dao == null) {
-            Messages.error(player, "Estatísticas indisponíveis.");
+            Messages.error(player, "stats.unavailable");
             return;
         }
 
         PlayerStats stats = dao.load(player.getUniqueId());
         if (stats == null) {
-            Messages.error(player, "Nenhuma estatística encontrada.");
+            Messages.error(player, "stats.empty");
             return;
         }
 
@@ -52,30 +51,30 @@ public class StatsListener implements Listener {
     }
 
     public static void openGui(Player player, PlayerStats stats) {
-        String title = "§8Stats de §e" + stats.name();
-        Inventory gui = Bukkit.createInventory(null, 27, title);
+        String title = Messages.text("menus.stats.title", "player", stats.name());
+        Inventory gui = new PluginMenu(PluginMenu.Type.STATS, 27, title).getInventory();
 
-        gui.setItem(11, buildStatItem(Material.DIAMOND_SWORD, "§eKills",
-                "§7Total de eliminações:", "§f" + stats.kills()));
+        gui.setItem(11, buildStatItem(Material.DIAMOND_SWORD, "menus.stats.kills", stats.kills()));
 
-        gui.setItem(13, buildStatItem(Material.SKELETON_SKULL, "§cMortes",
-                "§7Total de mortes:", "§f" + stats.deaths()));
+        gui.setItem(13, buildStatItem(Material.SKELETON_SKULL, "menus.stats.deaths", stats.deaths()));
 
-        gui.setItem(15, buildStatItem(Material.NETHER_STAR, "§6Vitórias",
-                "§7Total de vitórias:", "§f" + stats.wins()));
+        gui.setItem(15, buildStatItem(Material.NETHER_STAR, "menus.stats.wins", stats.wins()));
 
-        gui.setItem(22, buildStatItem(Material.LEATHER_CHESTPLATE, "§bÚltimo kit usado",
-                "§7Kit da última partida:", "§f" + stats.lastKit()));
+        var kit = stats.lastKit() == null ? null
+                : br.dev.sno0s.hgplugin.kits.KitRegistry.getByName(stats.lastKit());
+        String kitName = kit != null ? kit.getDisplayName()
+                : stats.lastKit() == null || stats.lastKit().isBlank() ? Messages.text("kits.none") : stats.lastKit();
+        gui.setItem(22, buildStatItem(Material.LEATHER_CHESTPLATE, "menus.stats.last-kit", kitName));
 
         player.openInventory(gui);
     }
 
-    private static ItemStack buildStatItem(Material material, String name, String... loreLines) {
+    private static ItemStack buildStatItem(Material material, String key, Object value) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
-            meta.setLore(List.of(loreLines));
+            meta.setDisplayName(Messages.text(key + ".name"));
+            meta.setLore(Messages.lines(key + ".lore", "value", value));
             item.setItemMeta(meta);
         }
         return item;
@@ -83,7 +82,8 @@ public class StatsListener implements Listener {
 
     @EventHandler
     public void onGuiClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().startsWith("§8Stats de ")) {
+        if (event.getView().getTopInventory().getHolder() instanceof PluginMenu menu
+                && menu.getType() == PluginMenu.Type.STATS) {
             event.setCancelled(true);
         }
     }

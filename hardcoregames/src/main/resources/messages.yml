@@ -1,0 +1,226 @@
+# Textos do plugin. Edite e reinicie o servidor para aplicar.
+# Cores: &0 a &f; estilos: &l (negrito), &o (itálico), &r (reset).
+# {server-name} usa o nome abaixo; prefix aceita qualquer tag, ou "" para ocultar.
+# Paleta: {msg}, {highlight}, {error}, {success}, {broadcast}.
+# Preserve os parâmetros nomeados de cada mensagem, como {player} e {seconds}.
+# Use "" em uma mensagem de chat para silenciá-la. Listas são linhas de descrição.
+# Chaves ausentes são preenchidas na inicialização, preservando as personalizações.
+server-name: "&cHardcore&fGames"
+prefix: "&f[{server-name}&f] "
+
+colors:
+  broadcast: "&6"
+  error: "&c"
+  highlight: "&e"
+  msg: "&f"
+  success: "&a"
+commands:
+  kit:
+    description: "Seleciona um kit para a partida."
+    usage: "/kit <nome>"
+  restarthg:
+    description: "Reinicia o servidor via Crafty."
+    usage: "/restarthg [check]"
+  spawnfeast:
+    description: "Spawn o Feast na localização do jogador (para testes)."
+    usage: "/spawnfeast"
+  startmatch:
+    description: "Inicia jogo mesmo que não contenha nenhum jogador."
+    usage: "/startmatch"
+  stats:
+    description: "Exibe estatísticas de um jogador."
+    usage: "/stats [jogador]"
+common:
+  no-permission: "{error}Você não tem permissão para usar este comando."
+  players-only: "Apenas jogadores podem usar este comando."
+compass:
+  no-player: "Nenhum jogador encontrado dentro de {highlight}{radius} blocos{msg}."
+  target: "Sua bússola aponta para {highlight}{player}{msg} ({x}, {y}, {z})"
+console:
+  config-manager:
+    invalid-terrain: "Configuração de terreno inválida; usando o preset clássico: {detail}"
+    invalid-world-size: "HGconfigs.world-size deve ser par, entre 256 e 10000; usando 750."
+  crafty-validation:
+    invalid-server-id: "crafty.server-id ausente ou inválido."
+    invalid-token: "crafty.api-key ausente ou inválida."
+    invalid-url: "crafty.url deve ser uma URL HTTP/HTTPS válida, sem credenciais."
+  crafty:
+    check: "Crafty check: {detail}"
+    configuration-error: "Crafty: {detail}"
+    restart-accepted: "Crafty: reinício aceito. {detail}"
+    restart-failed: "Crafty: {detail}"
+  database:
+    close-failed: "Erro ao fechar banco: {detail}"
+    connected: "Banco de dados conectado."
+    disconnected: "Banco de dados desconectado."
+  feast:
+    invalid-location: "Feast: localização inválida."
+    invalid-material: "Material inválido no feast-loot: {material}"
+    loot-distributed: "Loot distribuído em {filled} baús."
+    loot-loaded: "Itens de loot carregados: {count}"
+    missing-loot: "feast-loot não configurado, baús vazios."
+    spawned: "Feast spawnado com sucesso!"
+    spawning: "Spawnando Feast em {x}, {y}, {z}"
+  map-components:
+    wall-finished: "Muralha finalizada: {size} blocos, topo Y={height}"
+  plugin:
+    database-failed: "Falha ao conectar banco de dados: {detail}"
+    disabled: "Plugin finalizado!"
+    enabled: "Plugin iniciado!"
+  start-match-command:
+    console-start: "Console forçou início da partida."
+    player-start: "{player} iniciou a partida."
+  stats-database:
+    create-failed: "Erro ao criar jogador: {detail}"
+    find-failed: "Erro ao buscar jogador por nome: {detail}"
+    increment-failed: "Erro ao incrementar {column}: {detail}"
+    kit-update-failed: "Erro ao atualizar last_kit: {detail}"
+    load-failed: "Erro ao carregar stats: {detail}"
+    ranking-failed: "Erro ao buscar ranking: {detail}"
+  terrain-profile:
+    invalid-settings: "Invalid HG terrain settings; check HGconfigs.terrain"
+  wall-layout:
+    invalid-dimensions: "Invalid wall dimensions"
+  world-generation:
+    border-applied: "WorldBorder e biomas aplicados."
+    building-wall: "Gerando bordas."
+    cleaning-spawn: "Limpando chunks de spawn."
+    cleanup-failed: "Falha ao limpar os dados antigos de hg_world."
+    completed: "Geração do mundo demorou: {milliseconds} ms para rodar."
+    seed: "Seed do mapa: {seed}"
+    setting-weather: "Setando configurações de clima e tempo."
+    starting: "Iniciando geração do mundo!"
+  world-reset:
+    directory: "Pasta da arena: {path}"
+    linked-directory: "Diretório de arena contém link: {component}"
+    nested-world: "Diretório da arena contém outro mundo carregado: {player}"
+    recreate-failed: "Falha ao recriar hg_world."
+    recreating: "Recriando arena em {folder} (seed anterior: {old-seed})"
+    seed-mismatch: "hg_world reutilizou uma seed salva; esperada {expected-seed}, encontrada {actual-seed}"
+    unload-failed: "Não foi possível descarregar hg_world; nenhum arquivo foi apagado."
+    unsafe-directory: "Diretório de hg_world fora do local permitido: {folder}"
+    unsafe-world: "Recusando apagar o mundo principal ou uma arena incorreta."
+    world-not-found: "Falha ao localizar hg_world."
+    wrong-world: "WorldReset only manages hg_world"
+crafty:
+  accepted: "Crafty aceitou a requisição (HTTP {status})."
+  check-success: "{detail} A permissão de reinício é verificada ao reiniciar."
+  checking: "Consultando o Crafty em {highlight}{address}{msg}..."
+  communication-error: "Falha de comunicação com o Crafty ({exception}). Confira a rede e a configuração."
+  connection-refused: "Conexão TCP não estabelecida com {address} (ConnectException). A API não respondeu. Confira a porta publicada e o acesso a esse IP de dentro do servidor/container Minecraft."
+  countdown: "Servidor reiniciando em {highlight}{seconds}s{broadcast}!"
+  error: "Crafty: {detail}"
+  http-error: "HTTP {status}{code}: {hint}."
+  http:
+    forbidden: "sem permissão para este servidor; confira a permissão de comandos da chave/usuário"
+    not-found: "servidor ou endpoint não encontrado; confira url e server-id"
+    redirect: "redirecionamento; configure a URL final do Crafty"
+    unauthorized: "token inválido, expirado ou revogado; confira a chave de API no Crafty"
+    unexpected-response: "resposta não aceita; confira o painel/proxy e os logs do Crafty"
+  no-route: "Sem rota de rede para {address}. Confira VPN e firewall no servidor/container Minecraft."
+  requesting-restart: "Solicitando reinício ao Crafty..."
+  restart-not-scheduled: "Reinício não agendado: confira a configuração do Crafty no console."
+  restart-unconfirmed: "O Crafty não confirmou o reinício. Confira o console ou use /restarthg check."
+  result: "{detail}"
+  timeout: "Timeout ao conectar/ler {address}; confira endereço, porta, protocolo e rede do servidor."
+  tls-error: "Falha TLS/HTTPS; confira protocolo, porta e proxy do Crafty."
+  unknown-host: "Não foi possível resolver o endereço {address}. Confira o nome/DNS configurado."
+database:
+  detail: "{detail}"
+errors:
+  messages-load: "Não foi possível carregar {file}. Confira a sintaxe do YAML."
+feast:
+  coordinates: "{highlight}X: {x} Z: {z}{broadcast}"
+  countdown: "Feast em {highlight}{seconds}s{broadcast}!"
+  five-minutes: "O Feast spawna em {highlight}5 minutos{broadcast} em {coordinates}!"
+  one-minute: "O Feast spawna em {highlight}1 minuto{broadcast} em {coordinates}!"
+  spawned: "O Feast spawnou em {coordinates}!"
+  spawned-here: "Feast spawnado na sua localização!"
+items:
+  cannot-drop: "Você não pode dropar este item."
+  compass:
+    lore:
+      - "&7Aponta para o jogador mais próximo"
+    name: "&eBússola"
+  kit-selector:
+    lore:
+      - "&7Clique para escolher seu kit!"
+    name: "&eSeletor de Kits"
+  kit-shop:
+    lore:
+      - "&7Selecione um kit para comprar!"
+    name: "&aLoja de kits"
+  rocket:
+    lore:
+      - "&7Clique para saltar!"
+      - "&7Segure &eShift &7para ir para frente."
+    name: "&6Kangaroo"
+  stats:
+    lore:
+      - "&7Clique para ver suas estatísticas!"
+    name: "&aEstatísticas"
+join:
+  announcement: "{highlight}{player}{msg} entrou no servidor!"
+  ended: "A partida terminou. Aguarde o próximo round."
+  returning: "Bem-vindo de volta! A partida está em andamento."
+  spectator: "A partida já começou. Você está no modo espectador."
+kits:
+  none: "nenhum"
+  list-separator: ", "
+  available: "Kits disponíveis: {highlight}{kits}{msg}"
+  kangaroo:
+    cooldown: "Foguete bloqueado por {highlight}{seconds}s{error} (levou hit)."
+    description: "Use o foguete para saltar ou avançar!"
+    name: "Kangaroo"
+  match-locked: "Não é possível trocar de kit durante a partida."
+  not-found: "Kit {highlight}{kit}{error} não encontrado."
+  not-registered: "Você não está registrado na partida."
+  selected: "Kit {highlight}{kit}{success} selecionado!"
+match:
+  countdown: "Partida começando em {highlight}{seconds}s{msg}!"
+  countdown-start: "Iniciando contagem para começar a partida..."
+  disconnect-eliminated: "{highlight}{player}{broadcast} foi desclassificado por desconexão."
+  disconnect-warning: "{highlight}{player}{broadcast} desconectou. {highlight}{seconds}s{broadcast} para ser desclassificado."
+  draw: "Empate! Ninguém sobreviveu."
+  invincibility-countdown: "Faltam {highlight}{seconds}s{msg} de invencibilidade."
+  invincibility-ended: "A invencibilidade acabou!"
+  kill: "Você eliminou {highlight}{player}{success}! Kills: {highlight}{kills}{success}"
+  started: "A partida começou!"
+  started-by-you: "Você iniciou a partida."
+  waiting-players: "Faltam {highlight}{players}{msg} jogadores para começar!"
+  winner: "{highlight}{player}{broadcast} venceu a partida!"
+menus:
+  kits:
+    icon-lore:
+      - "&7{description}"
+    icon-name: "{highlight}{kit}"
+    title: "&8Selecione seu kit"
+  stats:
+    deaths:
+      lore:
+        - "&7Total de mortes:"
+        - "&f{value}"
+      name: "&cMortes"
+    kills:
+      lore:
+        - "&7Total de eliminações:"
+        - "&f{value}"
+      name: "&eKills"
+    last-kit:
+      lore:
+        - "&7Kit da última partida:"
+        - "&f{value}"
+      name: "&bÚltimo kit usado"
+    title: "&8Stats de &e{player}"
+    wins:
+      lore:
+        - "&7Total de vitórias:"
+        - "&f{value}"
+      name: "&6Vitórias"
+restart:
+  requested: "Reinício solicitado por {highlight}{player}{broadcast}!"
+stats:
+  empty: "Nenhuma estatística encontrada."
+  no-personal-stats: "Você ainda não possui estatísticas."
+  player-not-found: "Jogador {highlight}{player}{error} não encontrado."
+  unavailable: "Estatísticas indisponíveis."

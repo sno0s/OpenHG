@@ -14,7 +14,8 @@ public class KitRegistry {
 
     public static Kit getByName(String name) {
         return KITS.stream()
-                .filter(k -> k.getName().equalsIgnoreCase(name))
+                .filter(k -> k.getName().equalsIgnoreCase(name)
+                        || org.bukkit.ChatColor.stripColor(k.getDisplayName()).equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }

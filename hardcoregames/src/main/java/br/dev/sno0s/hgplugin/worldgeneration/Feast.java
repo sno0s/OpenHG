@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import br.dev.sno0s.hgplugin.Hgplugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -52,7 +53,7 @@ public class Feast {
         List<Map<?, ?>> list = Hgplugin.getConfigManager().getConfig().getMapList("HGconfigs.feast-loot");
 
         if (list.isEmpty()) {
-            Bukkit.getLogger().warning("[HardcoreGames] feast-loot não configurado, baús vazios.");
+            Bukkit.getLogger().warning(Messages.log("console.feast.missing-loot"));
             return loot;
         }
 
@@ -62,7 +63,7 @@ public class Feast {
 
             Material material = Material.matchMaterial(matName);
             if (material == null) {
-                Bukkit.getLogger().warning("[HardcoreGames] Material inválido no feast-loot: " + matName);
+                Bukkit.getLogger().warning(Messages.log("console.feast.invalid-material", "material", matName));
                 continue;
             }
 
@@ -88,7 +89,7 @@ public class Feast {
 
     public static void spawnFeast(Location loc) {
         if (loc == null || loc.getWorld() == null) {
-            Bukkit.getLogger().warning("[HardcoreGames] Feast: localização inválida.");
+            Bukkit.getLogger().warning(Messages.log("console.feast.invalid-location"));
             return;
         }
 
@@ -97,8 +98,7 @@ public class Feast {
         int y = world.getHighestBlockYAt(loc);
         Location center = new Location(world, loc.getBlockX(), y, loc.getBlockZ());
 
-        Bukkit.getLogger().info("[HardcoreGames] Spawnando Feast em "
-                + center.getBlockX() + ", " + y + ", " + center.getBlockZ());
+        Bukkit.getLogger().info(Messages.log("console.feast.spawning", "x", center.getBlockX(), "y", y, "z", center.getBlockZ()));
 
         // aplana área circular
         for (int dx = -r; dx <= r; dx++) {
@@ -135,11 +135,11 @@ public class Feast {
                     .setType(Material.CHEST, false);
         }
 
-        Bukkit.getLogger().info("[HardcoreGames] Feast spawnado com sucesso!");
+        Bukkit.getLogger().info(Messages.log("console.feast.spawned"));
 
         // preenche os baús 2 ticks depois — garante que os tile entities estão inicializados
         List<LootEntry> loot = loadLoot();
-        Bukkit.getLogger().info("[HardcoreGames] Itens de loot carregados: " + loot.size());
+        Bukkit.getLogger().info(Messages.log("console.feast.loot-loaded", "count", loot.size()));
 
         if (loot.isEmpty()) return;
 
@@ -156,7 +156,7 @@ public class Feast {
                     filled++;
                 }
             }
-            Bukkit.getLogger().info("[HardcoreGames] Loot distribuído em " + filled + " baús.");
+            Bukkit.getLogger().info(Messages.log("console.feast.loot-distributed", "filled", filled));
         }, 2L);
     }
 }

@@ -31,13 +31,12 @@ public class DisconnectListener implements Listener {
         if (data == null || !data.isAlive()) return;
 
         String name = player.getName();
-        Messages.broadcast(Messages.hl(name) + " desconectou. "
-                + Messages.hl(TIMEOUT_SECONDS + "s") + " para ser desclassificado.");
+        Messages.broadcast("match.disconnect-warning", "player", name, "seconds", TIMEOUT_SECONDS);
 
         BukkitTask task = Bukkit.getScheduler().runTaskLater(Hgplugin.getInstance(), () -> {
             pendingEliminations.remove(player.getUniqueId());
             data.setAlive(false);
-            Messages.broadcast(Messages.hl(name) + " foi desclassificado por desconexão.");
+            Messages.broadcast("match.disconnect-eliminated", "player", name);
             checkWinCondition();
         }, 20L * TIMEOUT_SECONDS);
 
@@ -71,8 +70,8 @@ public class DisconnectListener implements Listener {
                 .findFirst()
                 .ifPresentOrElse(e -> {
                     if (dao != null) dao.addWin(e.getKey());
-                    Messages.broadcast(Messages.hl(e.getValue().getName()) + " venceu a partida!");
-                }, () -> Messages.broadcast("Empate! Ninguém sobreviveu."));
+                    Messages.broadcast("match.winner", "player", e.getValue().getName());
+                }, () -> Messages.broadcast("match.draw"));
 
         CraftyAPI.scheduleRestart();
     }

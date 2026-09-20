@@ -10,11 +10,13 @@ import org.bukkit.generator.WorldInfo;
 
 import java.util.Random;
 
-/** Supplements vanilla forests without accessing live chunks during generation. */
+/** Reforça as árvores nativas sem acessar chunks do mundo durante a geração. */
 public final class TreePopulator extends BlockPopulator {
     private final int density;
 
-    public TreePopulator(int density) { this.density = Math.clamp(density, 0, 8); }
+    public TreePopulator(int density) {
+        this.density = Math.clamp(density, 0, 8);
+    }
 
     @Override
     public void populate(WorldInfo world, Random random, int chunkX, int chunkZ, LimitedRegion region) {

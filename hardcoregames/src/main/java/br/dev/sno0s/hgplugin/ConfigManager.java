@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.configuration.file.FileConfiguration;
 import br.dev.sno0s.hgplugin.worldgeneration.TerrainProfile;
 
@@ -14,9 +15,13 @@ public class ConfigManager {
         }
     }
 
-    /** Upgrade only the old preset values; preserve explicitly customized terrain settings. */
+    // Migra somente valores dos presets anteriores e preserva configurações personalizadas.
     static boolean migrateTerrainDefaults(FileConfiguration config) {
         boolean changed = false;
+        if (!config.isSet("HGconfigs.cocoa-density")) {
+            config.set("HGconfigs.cocoa-density", 12);
+            changed = true;
+        }
         if (!config.isSet("HGconfigs.world-size")) {
             config.set("HGconfigs.world-size", 750);
             changed = true;
@@ -26,39 +31,18 @@ public class ConfigManager {
             changed = true;
         }
         String path = "HGconfigs.terrain.";
-        if (config.isSet(path + "generator-version")) return changed;
-        if (config.isSet(path + "biome-frequency") && config.getDouble(path + "biome-frequency") == 0.003) {
-            config.set(path + "biome-frequency", 0.008);
+        int version = config.isSet(path + "generator-version") ? config.getInt(path + "generator-version") : 0;
+        if (version >= 3) return changed;
+        if (version < 2) {
+            if (config.isSet(path + "biome-frequency") && config.getDouble(path + "biome-frequency") == 0.003) {
+                config.set(path + "biome-frequency", 0.008);
+            }
+            if (config.isSet(path + "plains-weight") && config.getDouble(path + "plains-weight") == 0.2) {
+                config.set(path + "plains-weight", -0.15);
+            }
         }
-        if (config.isSet(path + "plains-weight") && config.getDouble(path + "plains-weight") == 0.2) {
-            config.set(path + "plains-weight", -0.15);
-        }
-        config.set(path + "generator-version", 2);
+        config.set(path + "generator-version", 3);
         return true;
-    }
-
-    public String getServerName() {
-        return plugin.getConfig().getString("HGconfigs.server-name", "HardcoreGames");
-    }
-
-    public String getMsgColor() {
-        return plugin.getConfig().getString("HGconfigs.colors.msg", "§f");
-    }
-
-    public String getHighlightColor() {
-        return plugin.getConfig().getString("HGconfigs.colors.highlight", "§e");
-    }
-
-    public String getErrorColor() {
-        return plugin.getConfig().getString("HGconfigs.colors.error", "§c");
-    }
-
-    public String getSuccessColor() {
-        return plugin.getConfig().getString("HGconfigs.colors.success", "§a");
-    }
-
-    public String getBroadcastColor() {
-        return plugin.getConfig().getString("HGconfigs.colors.broadcast", "§6");
     }
 
     public double getSoupHeal() {
@@ -73,10 +57,14 @@ public class ConfigManager {
         return plugin.getConfig().getInt("HGconfigs.mushroom-density", 40);
     }
 
+    public int getCocoaDensity() {
+        return Math.clamp(plugin.getConfig().getInt("HGconfigs.cocoa-density", 12), 0, 256);
+    }
+
     public int getWorldSize() {
         int size = plugin.getConfig().getInt("HGconfigs.world-size", 750);
         if (size >= 256 && size <= 10000 && size % 2 == 0) return size;
-        plugin.getLogger().warning("HGconfigs.world-size deve ser par, entre 256 e 10000; usando 750.");
+        plugin.getLogger().warning(Messages.log("console.config-manager.invalid-world-size"));
         return 750;
     }
 
@@ -134,7 +122,7 @@ public class ConfigManager {
                     cfg.getDouble("HGconfigs.terrain.hill-frequency", 0.006),
                     getBiomeFrequency(), getBiomePlainsWeight(), getBiomeDarkForestWeight(), getWorldSize());
         } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("Configuração de terreno inválida; usando o preset clássico: " + e.getMessage());
+            plugin.getLogger().warning(Messages.log("console.config-manager.invalid-terrain", "detail", e.getMessage()));
             return new TerrainProfile(68, 12, 0.006, 0.008, -0.15, -0.3, getWorldSize());
         }
     }

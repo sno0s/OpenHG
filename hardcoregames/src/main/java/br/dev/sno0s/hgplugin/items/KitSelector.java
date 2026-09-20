@@ -1,16 +1,14 @@
 package br.dev.sno0s.hgplugin.items;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.List;
 
 public class KitSelector {
 
     private static final Material ITEM_MATERIAL = Material.CHEST;
-    private static final String DISPLAY_NAME = "§eSeletor de Kits";
-    private static final List<String> LORE = List.of("§7Clique para escolher seu kit!");
 
     /*
         Cria e retorna o item configurado do Kit Selector
@@ -22,8 +20,9 @@ public class KitSelector {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName(DISPLAY_NAME);
-            meta.setLore(LORE);
+            meta.setDisplayName(Messages.text("items.kit-selector.name"));
+            PluginItems.mark(meta, "kit-selector");
+            meta.setLore(Messages.lines("items.kit-selector.lore"));
             item.setItemMeta(meta);
         }
 

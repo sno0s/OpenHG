@@ -1,10 +1,14 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
-/** Immutable, seed-based terrain model shared by chunks, biomes and the wall. */
+import br.dev.sno0s.hgplugin.utils.Messages;
+/** Modelo de terreno compartilhado pelos chunks, biomas e muralha. */
 public final class TerrainProfile {
-    public enum Landscape { PLAINS, FOREST, BIRCH_FOREST, DARK_FOREST, JUNGLE }
-    private static final Landscape[] LANDSCAPES = Landscape.values();
+    public enum Landscape { PLAINS, FOREST, DARK_FOREST, JUNGLE, DESERT }
+    private static final Landscape[] REQUIRED_BIOMES = {
+            Landscape.PLAINS, Landscape.FOREST, Landscape.DARK_FOREST, Landscape.JUNGLE, Landscape.DESERT
+    };
     private static final int[][] BIOME_CENTERS = {{0, 220}, {209, 68}, {129, -178}, {-129, -178}, {-209, 68}};
+    private static final int[][] MOUNTAIN_CENTERS = {{170, 150}, {-170, -150}, {170, -150}, {-170, 150}};
     private final int worldSize;
 
     private final int baseHeight;
@@ -28,7 +32,7 @@ public final class TerrainProfile {
                 || !Double.isFinite(plainsThreshold) || Math.abs(plainsThreshold) > 1
                 || !Double.isFinite(darkForestThreshold) || Math.abs(darkForestThreshold) > 1
                 || worldSize < 256 || worldSize > 10000 || worldSize % 2 != 0) {
-            throw new IllegalArgumentException("Invalid HG terrain settings; check HGconfigs.terrain");
+            throw new IllegalArgumentException(Messages.text("console.terrain-profile.invalid-settings"));
         }
         this.baseHeight = baseHeight;
         this.variation = variation;
@@ -43,27 +47,32 @@ public final class TerrainProfile {
         return new TerrainProfile(68, 12, 0.006, 0.008, -0.15, -0.3);
     }
 
-    public int worldSize() { return worldSize; }
+    public int worldSize() {
+        return worldSize;
+    }
 
-    /** Y of the grass block, with continuous hills across chunk and biome boundaries. */
+    /** Altura da superfície, com relevo contínuo entre chunks e biomas. */
     public int heightAt(long seed, int x, int z) {
         double broad = noise(seed, x * hillFrequency, z * hillFrequency);
         double hills = noise(seed ^ 0x632BE59BD9B4E019L, x * hillFrequency * 2, z * hillFrequency * 2);
         double detail = noise(seed ^ 0x94D049BB133111EBL, x * hillFrequency * 4, z * hillFrequency * 4);
         double relief = variation * (broad * 0.70 + hills * 0.25 + detail * 0.05);
-        // Two isolated, broad rises leave most of the gentle terrain intact.
-        int direction = (seed & 1) == 0 ? 1 : -1;
+        // Quatro elevações separadas, com posições que variam conforme a seed.
         double scale = worldSize / 750.0;
-        double mountain = Math.max(mountainAt(x, z, 170 * scale, direction * 150 * scale, scale),
-                mountainAt(x, z, -170 * scale, -direction * 150 * scale, scale));
+        double mountain = 0;
+        for (int i = 0; i < MOUNTAIN_CENTERS.length; i++) {
+            double cx = (MOUNTAIN_CENTERS[i][0] + hash(seed, i, 47) * 15) * scale;
+            double cz = (MOUNTAIN_CENTERS[i][1] + hash(seed, i, 59) * 15) * scale;
+            mountain = Math.max(mountain, mountainAt(x, z, cx, cz, scale));
+        }
         relief += variation * 2 * mountain;
-        // Central clearing blends into the hills without a circular cliff.
+        // A clareira central se mistura ao relevo sem formar um degrau circular.
         double blend = smooth(Math.clamp((Math.hypot(x, z) - 10) / 24, 0.0, 1.0));
         return baseHeight + (int) Math.round(relief * blend);
     }
 
     public Landscape biomeAt(long seed, int x, int z) {
-        // Reserve a substantial core of every biome, regardless of seed or thresholds.
+        // Garante áreas abertas, florestas, jungle e deserto dentro da arena.
         double scale = worldSize / 750.0;
         for (int i = 0; i < BIOME_CENTERS.length; i++) {
             double cx = (BIOME_CENTERS[i][0] + hash(seed, i, 17) * 20) * scale;
@@ -72,15 +81,15 @@ public final class TerrainProfile {
             if (dx * dx + dz * dz > 75 * 75 * scale * scale) continue;
             double radius = (65 + 10 * noise(seed ^ i, x * 0.025 / scale, z * 0.025 / scale)) * scale;
             if (dx * dx + dz * dz <= radius * radius) {
-                return LANDSCAPES[(i + (int) Math.floorMod(seed, 5)) % 5];
+                return REQUIRED_BIOMES[(i + (int) Math.floorMod(seed, REQUIRED_BIOMES.length)) % REQUIRED_BIOMES.length];
             }
         }
         double humidity = noise(seed ^ 0x6C62272E07BB0142L, x * biomeFrequency, z * biomeFrequency);
         double temperature = noise(seed ^ 0x9E3779B97F4A7C15L, x * biomeFrequency, z * biomeFrequency);
         if (humidity < plainsThreshold) return Landscape.PLAINS;
-        // Independent temperature thresholds keep every forest type reachable.
+        if (temperature > 0.6) return Landscape.DESERT;
+        // A floresta de bétulas foi removida; a faixa intermediária usa floresta comum.
         if (temperature < darkForestThreshold) return Landscape.DARK_FOREST;
-        if (temperature < 0.15) return Landscape.BIRCH_FOREST;
         if (temperature > 0.5) return Landscape.JUNGLE;
         return Landscape.FOREST;
     }
@@ -104,6 +113,11 @@ public final class TerrainProfile {
         return (double) (h & Long.MAX_VALUE) / Long.MAX_VALUE * 2 - 1;
     }
 
-    private static double smooth(double t) { return t * t * t * (t * (t * 6 - 15) + 10); }
-    private static double lerp(double a, double b, double t) { return a + (b - a) * t; }
+    private static double smooth(double t) {
+        return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    private static double lerp(double a, double b, double t) {
+        return a + (b - a) * t;
+    }
 }

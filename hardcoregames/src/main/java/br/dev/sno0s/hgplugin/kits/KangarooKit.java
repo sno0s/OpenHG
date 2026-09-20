@@ -1,5 +1,6 @@
 package br.dev.sno0s.hgplugin.kits;
 
+import br.dev.sno0s.hgplugin.utils.Messages;
 import br.dev.sno0s.hgplugin.items.Rocket;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,7 +15,7 @@ public class KangarooKit extends Kit {
 
     @Override
     public String getDescription() {
-        return "Use o foguete para saltar ou avançar!";
+        return Messages.text("kits.kangaroo.description");
     }
 
     @Override

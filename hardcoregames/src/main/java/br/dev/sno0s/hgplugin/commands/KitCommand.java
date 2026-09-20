@@ -15,13 +15,13 @@ public class KitCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            Messages.error(sender, "Apenas jogadores podem usar este comando.");
+            Messages.error(sender, "common.players-only");
             return true;
         }
 
         MatchPhase phase = GameState.getInstance().getPhase();
         if (phase == MatchPhase.IN_PROGRESS || phase == MatchPhase.ENDED) {
-            Messages.error(player, "Não é possível trocar de kit durante a partida.");
+            Messages.error(player, "kits.match-locked");
             return true;
         }
 
@@ -30,31 +30,31 @@ public class KitCommand implements CommandExecutor {
             return true;
         }
 
-        String kitName = args[0];
+        String kitName = String.join(" ", args);
         Kit kit = KitRegistry.getByName(kitName);
 
         if (kit == null) {
-            Messages.error(player, "Kit " + Messages.hl(kitName) + " não encontrado.");
+            Messages.error(player, "kits.not-found", "kit", kitName);
             sendKitList(player);
             return true;
         }
 
         GameState.PlayerData data = GameState.getInstance().getPlayer(player.getUniqueId());
         if (data == null) {
-            Messages.error(player, "Você não está registrado na partida.");
+            Messages.error(player, "kits.not-registered");
             return true;
         }
 
         data.setSelectedKit(kit.getName());
-        Messages.success(player, "Kit " + Messages.hl(kit.getName()) + " selecionado!");
+        Messages.success(player, "kits.selected", "kit", kit.getDisplayName());
         return true;
     }
 
     private void sendKitList(Player player) {
         String list = KitRegistry.getAll().stream()
-                .map(Kit::getName)
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("nenhum");
-        Messages.send(player, "Kits disponíveis: " + Messages.hl(list));
+                .map(Kit::getDisplayName)
+                .collect(java.util.stream.Collectors.joining(Messages.text("kits.list-separator")));
+        if (list.isEmpty()) list = Messages.text("kits.none");
+        Messages.send(player, "kits.available", "kits", list);
     }
 }

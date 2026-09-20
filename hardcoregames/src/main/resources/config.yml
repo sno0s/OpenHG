@@ -1,14 +1,9 @@
 HGconfigs:
-  server-name: "§f[§cHardcore§fGames]"
+  # Nome, prefixo, cores e textos ficam em messages.yml.
 
   # Cores das mensagens — use códigos §x ou nomes como "§e", "§a", etc.
-  colors:
-    msg: "§f"         # mensagens informativas
-    highlight: "§e"   # nomes de jogadores e valores
-    error: "§c"       # erros
-    success: "§a"     # confirmações
-    broadcast: "§6"   # anúncios globais
-  mushroom-density: 40 #Integer
+  mushroom-density: 40 # Alvo por chunk: valor a valor+10; 0 desliga; sem cogumelos na jungle
+  cocoa-density: 12 # Até este número de frutos extras por chunk de jungle; 0 mantém apenas vanilla
   world-size: 750 # Lado da arena quadrada, em blocos; número par entre 256 e 10000
   mob-spawn-multiplier: 0.25 # 25% da população normal (75% menos); 0 desliga, 1 normal
   tree-density: 1 # Reforço de árvores por bioma: 0 desliga o reforço; 1 padrão; 2 mais denso (máx. 8)
@@ -19,12 +14,12 @@ HGconfigs:
     hit-cooldown: 3  # segundos sem poder usar o foguete após receber hit de player
 
   terrain:
-    generator-version: 2    # Migração automática dos valores do preset antigo
+    generator-version: 3    # Migração automática dos valores do preset antigo
     base-height: 68          # Altura média do chão (48 a 112)
     height-variation: 12     # Relevo das colinas (0 a 24); montanhas localizadas somam até 2x esse valor
     hill-frequency: 0.006   # Frequência das colinas (0.001 a 0.02); menor = colinas mais largas
     biome-frequency: 0.008  # Frequência dos biomas (0.001 a 0.05); menor = regiões maiores
-    plains-weight: -0.15    # Limiar de umidade (-1 a 1); maior = mais planícies
+    plains-weight: -0.15    # Limiar de umidade (-1 a 1); maior = mais planícies fora das regiões obrigatórias
     dark-forest-weight: -0.3 # Limiar de temperatura (-1 a 1); maior = mais floresta escura
 
   wall:

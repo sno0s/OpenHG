@@ -32,8 +32,7 @@ public class DeathListener implements Listener {
             GameState.PlayerData killerData = state.getPlayer(killer.getUniqueId());
             if (killerData != null) {
                 killerData.addKill();
-                Messages.success(killer, "Você eliminou " + Messages.hl(dead.getName())
-                        + "! Kills: " + Messages.hl(String.valueOf(killerData.getKills())));
+                Messages.success(killer, "match.kill", "player", dead.getName(), "kills", killerData.getKills());
             }
             if (dao != null) dao.addKill(killer.getUniqueId());
         }
@@ -64,8 +63,8 @@ public class DeathListener implements Listener {
                 .findFirst()
                 .ifPresentOrElse(e -> {
                     if (dao != null) dao.addWin(e.getKey());
-                    Messages.broadcast(Messages.hl(e.getValue().getName()) + " venceu a partida!");
-                }, () -> Messages.broadcast("Empate! Ninguém sobreviveu."));
+                    Messages.broadcast("match.winner", "player", e.getValue().getName());
+                }, () -> Messages.broadcast("match.draw"));
 
         CraftyAPI.scheduleRestart();
     }

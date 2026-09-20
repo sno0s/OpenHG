@@ -16,13 +16,13 @@ public class StatsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player viewer)) {
-            Messages.error(sender, "Apenas jogadores podem usar este comando.");
+            Messages.error(sender, "common.players-only");
             return true;
         }
 
         PlayerStatsDAO dao = Hgplugin.getStatsDAO();
         if (dao == null) {
-            Messages.error(viewer, "Estatísticas indisponíveis.");
+            Messages.error(viewer, "stats.unavailable");
             return true;
         }
 
@@ -31,7 +31,7 @@ public class StatsCommand implements CommandExecutor {
         if (args.length == 0) {
             stats = dao.load(viewer.getUniqueId());
             if (stats == null) {
-                Messages.error(viewer, "Você ainda não possui estatísticas.");
+                Messages.error(viewer, "stats.no-personal-stats");
                 return true;
             }
         } else {
@@ -42,7 +42,7 @@ public class StatsCommand implements CommandExecutor {
                 stats = dao.loadByName(args[0]);
             }
             if (stats == null) {
-                Messages.error(viewer, "Jogador " + Messages.hl(args[0]) + " não encontrado.");
+                Messages.error(viewer, "stats.player-not-found", "player", args[0]);
                 return true;
             }
         }
