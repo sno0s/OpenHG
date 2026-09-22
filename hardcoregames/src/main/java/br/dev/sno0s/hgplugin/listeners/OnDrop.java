@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class OnDrop implements Listener {
 
-    private final Set<String> blockedItems = Set.of("kit-selector", "stats", "rocket");
+    private final Set<String> blockedItems = Set.of("kit-selector", "stats", "rocket", "lumberjack-axe");
 
     @EventHandler
     public void onOffHandUse(PlayerInteractEvent event) {

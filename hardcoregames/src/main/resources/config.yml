@@ -23,7 +23,7 @@ HGconfigs:
     dark-forest-weight: -0.3 # Limiar de temperatura (-1 a 1); maior = mais floresta escura
 
   wall:
-    height: 10 # Altura acima do ponto mais alto do perímetro (6 a 24); torres sobem mais 2 a 4
+    height: 50 # Altura acima do ponto mais alto do perímetro (6 a 50); torres sobem mais 2 a 4
 
   # Integração com o Crafty Controller
   crafty:
@@ -33,27 +33,20 @@ HGconfigs:
     restart-delay: 15  # segundos após o fim da partida para reiniciar
 
   feast-loot:
+    # amount é o total global do material nos 12 baús, antes da distribuição aleatória.
     - material: "DIAMOND_SWORD"
-      chance: 20
+      amount: 1
     - material: "IRON_SWORD"
-      chance: 60
+      amount: 2
     - material: "GOLDEN_APPLE"
-      chance: 70
-      min: 1
-      max: 3
+      amount: 2
     - material: "DIAMOND_HELMET"
-      chance: 15
+      amount: 1
     - material: "BOW"
-      chance: 40
+      amount: 2
     - material: "ARROW"
-      chance: 80
-      min: 4
-      max: 16
+      amount: 16
     - material: "COBWEB"
-      chance: 50
-      min: 2
-      max: 5
+      amount: 4
     - material: "TNT"
-      chance: 30
-      min: 1
-      max: 2
+      amount: 2

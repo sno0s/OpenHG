@@ -14,7 +14,7 @@ public final class WallLayout {
     private final int wallTop;
 
     public WallLayout(TerrainProfile terrain, long seed, int size, int height) {
-        if (size < 64 || size % 2 != 0 || height < 6 || height > 24) {
+        if (size < 64 || size % 2 != 0 || height < 6 || height > 50) {
             throw new IllegalArgumentException(Messages.text("console.wall-layout.invalid-dimensions"));
         }
         int half = size / 2;

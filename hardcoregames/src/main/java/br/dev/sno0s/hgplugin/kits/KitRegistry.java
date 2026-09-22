@@ -5,7 +5,8 @@ import java.util.List;
 public class KitRegistry {
 
     private static final List<Kit> KITS = List.of(
-            new KangarooKit()
+            new KangarooKit(),
+            new LumberjackKit()
     );
 
     public static List<Kit> getAll() {

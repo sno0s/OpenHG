@@ -135,6 +135,7 @@ feast:
   five-minutes: "O Feast spawna em {highlight}5 minutos{broadcast} em {coordinates}!"
   one-minute: "O Feast spawna em {highlight}1 minuto{broadcast} em {coordinates}!"
   spawned: "O Feast spawnou em {coordinates}!"
+  loot-capacity: "Loot do Feast excede a capacidade: {items} stacks para {slots} slots."
   spawned-here: "Feast spawnado na sua localização!"
 items:
   cannot-drop: "Você não pode dropar este item."
@@ -171,6 +172,8 @@ kits:
   kangaroo:
     cooldown: "Foguete bloqueado por {highlight}{seconds}s{error} (levou hit)."
     description: "Use o foguete para saltar ou avançar!"
+  lumberjack:
+    description: "Machado infinito: derrube uma árvore inteira pelo tronco."
     name: "Kangaroo"
   match-locked: "Não é possível trocar de kit durante a partida."
   not-found: "Kit {highlight}{kit}{error} não encontrado."

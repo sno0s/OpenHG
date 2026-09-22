@@ -110,7 +110,7 @@ public class ConfigManager {
     }
 
     public int getWallHeight() {
-        return Math.clamp(plugin.getConfig().getInt("HGconfigs.wall.height", 10), 6, 24);
+        return Math.clamp(plugin.getConfig().getInt("HGconfigs.wall.height", 50), 6, 50);
     }
 
     public TerrainProfile getTerrainProfile() {

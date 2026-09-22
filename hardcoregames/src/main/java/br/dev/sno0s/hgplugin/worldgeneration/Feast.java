@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +20,11 @@ public class Feast {
 
     private static class LootEntry {
         Material material;
-        int chance, min, max;
+        int amount;
 
-        LootEntry(Material material, int chance, int min, int max) {
+        LootEntry(Material material, int amount) {
             this.material = material;
-            this.chance = chance;
-            this.min = min;
-            this.max = max;
+            this.amount = amount;
         }
     }
 
@@ -67,24 +66,48 @@ public class Feast {
                 continue;
             }
 
+            if (entry.containsKey("amount")) {
+                int amount = Math.max(0, ((Number) entry.get("amount")).intValue());
+                loot.add(new LootEntry(material, amount));
+                continue;
+            }
+            // Compatibilidade temporária: o formato antigo decide uma vez por material,
+            // mas o novo formato amount é o único que garante totais exatos.
             int chance = entry.containsKey("chance") ? ((Number) entry.get("chance")).intValue() : 50;
-            int min    = entry.containsKey("min")    ? ((Number) entry.get("min")).intValue()    : 1;
-            int max    = entry.containsKey("max")    ? ((Number) entry.get("max")).intValue()    : 1;
-
-            loot.add(new LootEntry(material, chance, min, max));
+            int min = entry.containsKey("min") ? ((Number) entry.get("min")).intValue() : 1;
+            int max = entry.containsKey("max") ? ((Number) entry.get("max")).intValue() : min;
+            int amount = random.nextInt(100) < Math.clamp(chance, 0, 100)
+                    ? min + random.nextInt(Math.max(1, max - min + 1)) : 0;
+            loot.add(new LootEntry(material, Math.max(0, amount)));
         }
 
         return loot;
     }
 
-    private static void fillChest(Chest chest, List<LootEntry> loot) {
-        // getBlockInventory() = referência ao vivo do tile entity, sem necessidade de update()
+    static int distributeLoot(List<Chest> chests, List<LootEntry> loot) {
+        List<ItemStack> stacks = new ArrayList<>();
         for (LootEntry entry : loot) {
-            if (random.nextInt(100) < entry.chance) {
-                int amount = entry.min + random.nextInt(entry.max - entry.min + 1);
-                chest.getBlockInventory().addItem(new ItemStack(entry.material, amount));
+            int left = entry.amount;
+            int max = Math.max(1, entry.material.getMaxStackSize());
+            while (left > 0) {
+                int amount = Math.min(left, max);
+                stacks.add(new ItemStack(entry.material, amount));
+                left -= amount;
             }
         }
+        List<int[]> slots = new ArrayList<>();
+        for (int chest = 0; chest < chests.size(); chest++)
+            for (int slot = 0; slot < 27; slot++) slots.add(new int[]{chest, slot});
+        if (stacks.size() > slots.size()) {
+            Bukkit.getLogger().warning(Messages.log("console.feast.loot-capacity", "items", stacks.size(), "slots", slots.size()));
+            return 0;
+        }
+        java.util.Collections.shuffle(slots, random);
+        for (int i = 0; i < stacks.size(); i++) {
+            int[] target = slots.get(i);
+            chests.get(target[0]).getBlockInventory().setItem(target[1], stacks.get(i));
+        }
+        return stacks.size();
     }
 
     public static void spawnFeast(Location loc) {
@@ -148,15 +171,13 @@ public class Feast {
         final int cz = center.getBlockZ();
 
         Bukkit.getScheduler().runTaskLater(Hgplugin.getInstance(), () -> {
-            int filled = 0;
+            List<Chest> chests = new ArrayList<>();
             for (int[] offset : CHEST_OFFSETS) {
                 Block block = world.getBlockAt(cx + offset[0], cy, cz + offset[1]);
-                if (block.getState() instanceof Chest chest) {
-                    fillChest(chest, loot);
-                    filled++;
-                }
+                if (block.getState() instanceof Chest chest) chests.add(chest);
             }
-            Bukkit.getLogger().info(Messages.log("console.feast.loot-distributed", "filled", filled));
+            int stacks = distributeLoot(chests, loot);
+            Bukkit.getLogger().info(Messages.log("console.feast.loot-distributed", "filled", chests.size(), "stacks", stacks));
         }, 2L);
     }
 }
