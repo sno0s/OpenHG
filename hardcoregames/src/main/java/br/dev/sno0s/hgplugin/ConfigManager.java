@@ -2,7 +2,12 @@ package br.dev.sno0s.hgplugin;
 
 import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import br.dev.sno0s.hgplugin.worldgeneration.TerrainProfile;
+
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class ConfigManager {
 
@@ -10,9 +15,28 @@ public class ConfigManager {
 
     public ConfigManager(Hgplugin plugin) {
         this.plugin = plugin;
+        boolean changed = mergeBundledDefaults(plugin.getConfig());
         if (migrateTerrainDefaults(plugin.getConfig())) {
+            changed = true;
+        }
+        if (changed) {
             plugin.saveConfig();
         }
+    }
+
+    /** Adiciona novas opções do config.yml sem apagar valores definidos pelo servidor. */
+    private boolean mergeBundledDefaults(FileConfiguration config) {
+        var resource = Objects.requireNonNull(plugin.getResource("config.yml"), "config.yml missing from plugin");
+        YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(resource, StandardCharsets.UTF_8));
+        boolean changed = false;
+        for (String key : bundled.getKeys(true)) {
+            if (!bundled.isConfigurationSection(key) && !config.isSet(key)) {
+                config.set(key, bundled.get(key));
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     // Migra somente valores dos presets anteriores e preserva configurações personalizadas.
