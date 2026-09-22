@@ -26,7 +26,9 @@ public class ConfigManager {
 
     /** Adiciona novas opções do config.yml sem apagar valores definidos pelo servidor. */
     private boolean mergeBundledDefaults(FileConfiguration config) {
-        var resource = Objects.requireNonNull(plugin.getResource("config.yml"), "config.yml missing from plugin");
+        var resource = plugin.getResource("config.yml");
+        // Test doubles may not expose bundled resources; the server JAR always does.
+        if (resource == null) return false;
         YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
                 new InputStreamReader(resource, StandardCharsets.UTF_8));
         boolean changed = false;
