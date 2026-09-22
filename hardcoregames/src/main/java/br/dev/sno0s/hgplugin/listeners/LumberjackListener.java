@@ -1,7 +1,6 @@
 package br.dev.sno0s.hgplugin.listeners;
 
 import br.dev.sno0s.hgplugin.GameState;
-import br.dev.sno0s.hgplugin.items.LumberjackAxe;
 import br.dev.sno0s.hgplugin.items.PluginItems;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -31,10 +30,14 @@ public final class LumberjackListener implements Listener {
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (!isLumberjack(player) || !LOGS.contains(event.getBlock().getType())) return;
+        event.setCancelled(true);
         Set<Block> tree = collectTree(event.getBlock());
-        if (tree.size() <= 1 || !hasNearbyLeaves(tree)) return;
+        if (tree.isEmpty()) return;
         for (Block block : tree) {
-            if (block != event.getBlock()) block.breakNaturally(player.getInventory().getItemInMainHand(), true, true);
+            Material type = block.getType();
+            // Remoção sem física evita que folhas, terra ou blocos vizinhos sejam alterados.
+            block.setType(Material.AIR, false);
+            block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(type, 1));
         }
     }
 
@@ -56,7 +59,7 @@ public final class LumberjackListener implements Listener {
         queue.add(root);
         while (!queue.isEmpty() && found.size() < MAX_LOGS) {
             Block block = queue.removeFirst();
-            if (!found.add(block) || !LOGS.contains(block.getType())) continue;
+            if (!LOGS.contains(block.getType()) || !found.add(block)) continue;
             for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) for (int dz = -1; dz <= 1; dz++) {
                 if (dx != 0 || dy != 0 || dz != 0) queue.add(block.getRelative(dx, dy, dz));
             }
@@ -64,9 +67,4 @@ public final class LumberjackListener implements Listener {
         return found;
     }
 
-    private static boolean hasNearbyLeaves(Set<Block> logs) {
-        for (Block log : logs) for (int dx = -3; dx <= 3; dx++) for (int dy = -3; dy <= 4; dy++) for (int dz = -3; dz <= 3; dz++)
-            if (log.getRelative(dx, dy, dz).getType().name().endsWith("_LEAVES")) return true;
-        return false;
-    }
 }

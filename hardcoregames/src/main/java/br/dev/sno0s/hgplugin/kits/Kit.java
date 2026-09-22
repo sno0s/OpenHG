@@ -4,6 +4,7 @@ import br.dev.sno0s.hgplugin.items.PluginItems;
 import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 
 
@@ -34,6 +35,8 @@ public abstract class Kit {
             meta.setDisplayName(Messages.text("menus.kits.icon-name", "kit", getDisplayName()));
             PluginItems.mark(meta, getName());
             meta.setLore(Messages.lines("menus.kits.icon-lore", "description", getDescription()));
+            // O ícone representa o kit; não exibir dano/velocidade do item vanilla.
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
             icon.setItemMeta(meta);
         }
         return icon;

@@ -48,7 +48,10 @@ public class KitSelectorListener implements Listener {
     private void openGui(Player player) {
         List<Kit> kits = KitRegistry.getAll();
         Inventory gui = new PluginMenu(PluginMenu.Type.KITS, 54, Messages.text("menus.kits.title")).getInventory();
-        for (Kit kit : kits) gui.addItem(kit.getIcon());
+        for (int i = 0; i < kits.size(); i++) {
+            int slot = 10 + (i / 7) * 9 + (i % 7);
+            gui.setItem(slot, kits.get(i).getIcon());
+        }
         player.openInventory(gui);
     }
 

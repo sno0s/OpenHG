@@ -173,8 +173,8 @@ kits:
     cooldown: "Foguete bloqueado por {highlight}{seconds}s{error} (levou hit)."
     description: "Use o foguete para saltar ou avançar!"
   lumberjack:
-    description: "Machado infinito: derrube uma árvore inteira pelo tronco."
-    name: "Kangaroo"
+    description: "Machado de madeira infinito: derrube os troncos conectados da árvore."
+    name: "&2Lumberjack"
   match-locked: "Não é possível trocar de kit durante a partida."
   not-found: "Kit {highlight}{kit}{error} não encontrado."
   not-registered: "Você não está registrado na partida."
