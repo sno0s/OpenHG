@@ -12,13 +12,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 public class Feast {
 
-    private static class LootEntry {
+    static class LootEntry {
         Material material;
         int amount;
 
@@ -84,30 +85,81 @@ public class Feast {
         return loot;
     }
 
-    static int distributeLoot(List<Chest> chests, List<LootEntry> loot) {
-        List<ItemStack> stacks = new ArrayList<>();
-        for (LootEntry entry : loot) {
-            int left = entry.amount;
-            int max = Math.max(1, entry.material.getMaxStackSize());
-            while (left > 0) {
-                int amount = Math.min(left, max);
-                stacks.add(new ItemStack(entry.material, amount));
-                left -= amount;
-            }
-        }
-        List<int[]> slots = new ArrayList<>();
-        for (int chest = 0; chest < chests.size(); chest++)
-            for (int slot = 0; slot < 27; slot++) slots.add(new int[]{chest, slot});
-        if (stacks.size() > slots.size()) {
-            Bukkit.getLogger().warning(Messages.log("console.feast.loot-capacity", "items", stacks.size(), "slots", slots.size()));
+    static final int CHEST_SLOTS = 27;
+    // Quantidades a partir deste valor são espalhadas por pelo menos esse número de baús.
+    static final int MIN_SPREAD = 3;
+
+    static int distributeLoot(List<Inventory> chests, List<LootEntry> loot, Random rng) {
+        int totalSlots = chests.size() * CHEST_SLOTS;
+        int minPieces = 0;
+        for (LootEntry entry : loot) minPieces += minPieces(entry);
+        if (minPieces > totalSlots) {
+            Bukkit.getLogger().warning(Messages.log("console.feast.loot-capacity", "items", minPieces, "slots", totalSlots));
             return 0;
         }
-        java.util.Collections.shuffle(slots, random);
-        for (int i = 0; i < stacks.size(); i++) {
-            int[] target = slots.get(i);
-            chests.get(target[0]).getBlockInventory().setItem(target[1], stacks.get(i));
+
+        // Pedaços extras além do mínimo consomem slots livres; o orçamento impede estourar a capacidade.
+        int budget = totalSlots - minPieces;
+        List<List<Integer>> free = new ArrayList<>();
+        for (int chest = 0; chest < chests.size(); chest++) {
+            List<Integer> slots = new ArrayList<>();
+            for (int slot = 0; slot < CHEST_SLOTS; slot++) slots.add(slot);
+            Collections.shuffle(slots, rng);
+            free.add(slots);
         }
-        return stacks.size();
+
+        int placed = 0;
+        for (LootEntry entry : loot) {
+            if (entry.amount <= 0) continue;
+            int min = minPieces(entry);
+            // Itens não empilháveis podem precisar de mais porções que o número de baús;
+            // nesse caso, vários slots do mesmo baú são válidos.
+            int upper = Math.max(min, Math.min(entry.amount, chests.size()));
+            int lower = Math.max(min, Math.min(upper, MIN_SPREAD));
+            int pieces = lower == upper ? lower
+                    : Math.min(lower + rng.nextInt(upper - lower + 1), min + budget);
+            budget -= pieces - min;
+
+            List<Integer> order = new ArrayList<>();
+            for (int chest = 0; chest < chests.size(); chest++) order.add(chest);
+            Collections.shuffle(order, rng);
+            int cursor = 0;
+            for (int amount : splitAmount(entry.amount, pieces, maxStack(entry), rng)) {
+                // cada pedaço vai para um baú diferente; baús cheios são pulados
+                while (free.get(order.get(cursor % order.size())).isEmpty()) cursor++;
+                int chest = order.get(cursor++ % order.size());
+                chests.get(chest).setItem(free.get(chest).removeLast(), new ItemStack(entry.material, amount));
+                placed++;
+            }
+        }
+        return placed;
+    }
+
+    private static int maxStack(LootEntry entry) {
+        return Math.max(1, entry.material.getMaxStackSize());
+    }
+
+    private static int minPieces(LootEntry entry) {
+        return Math.max(0, entry.amount + maxStack(entry) - 1) / maxStack(entry);
+    }
+
+    // Divide amount em `pieces` partes positivas, cada uma <= maxStack, com soma exata.
+    static int[] splitAmount(int amount, int pieces, int maxStack, Random rng) {
+        int[] parts = new int[pieces];
+        List<Integer> open = new ArrayList<>();
+        for (int i = 0; i < pieces; i++) {
+            parts[i] = 1;
+            if (maxStack > 1) open.add(i);
+        }
+        for (int left = amount - pieces; left > 0; left--) {
+            int pick = rng.nextInt(open.size());
+            int index = open.get(pick);
+            if (++parts[index] == maxStack) {
+                int last = open.removeLast();
+                if (pick < open.size()) open.set(pick, last);
+            }
+        }
+        return parts;
     }
 
     public static void spawnFeast(Location loc) {
@@ -171,12 +223,12 @@ public class Feast {
         final int cz = center.getBlockZ();
 
         Bukkit.getScheduler().runTaskLater(Hgplugin.getInstance(), () -> {
-            List<Chest> chests = new ArrayList<>();
+            List<Inventory> chests = new ArrayList<>();
             for (int[] offset : CHEST_OFFSETS) {
                 Block block = world.getBlockAt(cx + offset[0], cy, cz + offset[1]);
-                if (block.getState() instanceof Chest chest) chests.add(chest);
+                if (block.getState() instanceof Chest chest) chests.add(chest.getBlockInventory());
             }
-            int stacks = distributeLoot(chests, loot);
+            int stacks = distributeLoot(chests, loot, random);
             Bukkit.getLogger().info(Messages.log("console.feast.loot-distributed", "filled", chests.size(), "stacks", stacks));
         }, 2L);
     }
