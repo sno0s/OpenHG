@@ -12,7 +12,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.meta.EnchantedBookMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class Feast {
             if (enchantments.isEmpty()) return stack;
 
             ItemMeta meta = stack.getItemMeta();
-            if (meta instanceof EnchantedBookMeta bookMeta) {
+            if (meta instanceof EnchantmentStorageMeta bookMeta) {
                 enchantments.forEach((enchantment, level) ->
                         bookMeta.addStoredEnchant(enchantment, level, true));
                 stack.setItemMeta(bookMeta);

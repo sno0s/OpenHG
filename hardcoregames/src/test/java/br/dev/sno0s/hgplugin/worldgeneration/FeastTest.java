@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantedBookMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,8 +117,8 @@ class FeastTest {
         ItemStack book = entry.createStack(1);
 
         assertEquals(Material.ENCHANTED_BOOK, book.getType());
-        assertTrue(book.getItemMeta() instanceof EnchantedBookMeta);
-        EnchantedBookMeta meta = (EnchantedBookMeta) book.getItemMeta();
+        assertTrue(book.getItemMeta() instanceof EnchantmentStorageMeta);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
         assertEquals(1, meta.getStoredEnchantLevel(Enchantment.SHARPNESS));
     }
 
