@@ -55,6 +55,9 @@ console:
     disconnected: "Banco de dados desconectado."
   feast:
     invalid-location: "Feast: localização inválida."
+    invalid-enchantment: "Encantamento inválido no feast-loot: {enchantment}"
+    invalid-enchantments: "Encantamentos inválidos no feast-loot de {material}"
+    invalid-enchantment-level: "Nível inválido para o encantamento no feast-loot: {enchantment}"
     invalid-material: "Material inválido no feast-loot: {material}"
     loot-distributed: "Loot distribuído em {filled} baús."
     loot-loaded: "Itens de loot carregados: {count}"

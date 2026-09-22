@@ -1,8 +1,10 @@
 package br.dev.sno0s.hgplugin.worldgeneration;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantedBookMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -104,5 +107,37 @@ class FeastTest {
             }
         assertEquals(30, total);
         assertEquals(30, placed);
+    }
+
+    @Test
+    void enchantedBookLootCreatesStoredEnchantment() {
+        Feast.LootEntry entry = new Feast.LootEntry(Material.ENCHANTED_BOOK, 1,
+                Map.of(Enchantment.SHARPNESS, 1));
+
+        ItemStack book = entry.createStack(1);
+
+        assertEquals(Material.ENCHANTED_BOOK, book.getType());
+        assertTrue(book.getItemMeta() instanceof EnchantedBookMeta);
+        EnchantedBookMeta meta = (EnchantedBookMeta) book.getItemMeta();
+        assertEquals(1, meta.getStoredEnchantLevel(Enchantment.SHARPNESS));
+    }
+
+    @Test
+    void regularItemLootReceivesEnchantment() {
+        Feast.LootEntry entry = new Feast.LootEntry(Material.DIAMOND_SWORD, 1,
+                Map.of(Enchantment.SHARPNESS, 1));
+
+        ItemStack sword = entry.createStack(1);
+
+        assertEquals(1, sword.getEnchantmentLevel(Enchantment.SHARPNESS));
+    }
+
+    @Test
+    void enchantmentConfigAcceptsMinecraftKeyAndIgnoresInvalidEntries() {
+        Map<Enchantment, Integer> parsed = Feast.parseEnchantments(
+                Map.of("minecraft:sharpness", 1, "not_an_enchantment", 1, "smite", 0),
+                "ENCHANTED_BOOK");
+
+        assertEquals(Map.of(Enchantment.SHARPNESS, 1), parsed);
     }
 }

@@ -38,6 +38,11 @@ HGconfigs:
       amount: 1
     - material: "IRON_SWORD"
       amount: 2
+    # Livros encantados usam o mesmo formato; também funciona em itens normais.
+    # - material: "ENCHANTED_BOOK"
+    #   amount: 1
+    #   enchantments:
+    #     SHARPNESS: 1
     - material: "GOLDEN_APPLE"
       amount: 2
     - material: "DIAMOND_HELMET"

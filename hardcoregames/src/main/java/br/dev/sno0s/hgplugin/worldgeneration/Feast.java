@@ -5,15 +5,21 @@ import br.dev.sno0s.hgplugin.Hgplugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.meta.EnchantedBookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -22,10 +28,33 @@ public class Feast {
     static class LootEntry {
         Material material;
         int amount;
+        Map<Enchantment, Integer> enchantments;
 
         LootEntry(Material material, int amount) {
+            this(material, amount, Map.of());
+        }
+
+        LootEntry(Material material, int amount, Map<Enchantment, Integer> enchantments) {
             this.material = material;
             this.amount = amount;
+            this.enchantments = Map.copyOf(enchantments);
+        }
+
+        ItemStack createStack(int stackAmount) {
+            ItemStack stack = new ItemStack(material, stackAmount);
+            if (enchantments.isEmpty()) return stack;
+
+            ItemMeta meta = stack.getItemMeta();
+            if (meta instanceof EnchantedBookMeta bookMeta) {
+                enchantments.forEach((enchantment, level) ->
+                        bookMeta.addStoredEnchant(enchantment, level, true));
+                stack.setItemMeta(bookMeta);
+            } else if (meta != null) {
+                enchantments.forEach((enchantment, level) ->
+                        meta.addEnchant(enchantment, level, true));
+                stack.setItemMeta(meta);
+            }
+            return stack;
         }
     }
 
@@ -66,10 +95,11 @@ public class Feast {
                 Bukkit.getLogger().warning(Messages.log("console.feast.invalid-material", "material", matName));
                 continue;
             }
+            Map<Enchantment, Integer> enchantments = parseEnchantments(entry.get("enchantments"), matName);
 
             if (entry.containsKey("amount")) {
                 int amount = Math.max(0, ((Number) entry.get("amount")).intValue());
-                loot.add(new LootEntry(material, amount));
+                loot.add(new LootEntry(material, amount, enchantments));
                 continue;
             }
             // Compatibilidade temporária: o formato antigo decide uma vez por material,
@@ -79,10 +109,36 @@ public class Feast {
             int max = entry.containsKey("max") ? ((Number) entry.get("max")).intValue() : min;
             int amount = random.nextInt(100) < Math.clamp(chance, 0, 100)
                     ? min + random.nextInt(Math.max(1, max - min + 1)) : 0;
-            loot.add(new LootEntry(material, Math.max(0, amount)));
+            loot.add(new LootEntry(material, Math.max(0, amount), enchantments));
         }
 
         return loot;
+    }
+
+    static Map<Enchantment, Integer> parseEnchantments(Object raw, String materialName) {
+        if (raw == null) return Map.of();
+        if (!(raw instanceof Map<?, ?> rawMap)) {
+            Bukkit.getLogger().warning(Messages.log("console.feast.invalid-enchantments", "material", materialName));
+            return Map.of();
+        }
+
+        Map<Enchantment, Integer> enchantments = new LinkedHashMap<>();
+        for (Map.Entry<?, ?> configured : rawMap.entrySet()) {
+            String key = String.valueOf(configured.getKey()).toLowerCase(Locale.ROOT);
+            if (key.startsWith("minecraft:")) key = key.substring("minecraft:".length());
+            Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(key));
+            if (enchantment == null || !(configured.getValue() instanceof Number number)) {
+                Bukkit.getLogger().warning(Messages.log("console.feast.invalid-enchantment", "enchantment", configured.getKey()));
+                continue;
+            }
+            int level = number.intValue();
+            if (level <= 0) {
+                Bukkit.getLogger().warning(Messages.log("console.feast.invalid-enchantment-level", "enchantment", configured.getKey()));
+                continue;
+            }
+            enchantments.put(enchantment, level);
+        }
+        return enchantments;
     }
 
     static final int CHEST_SLOTS = 27;
@@ -128,7 +184,7 @@ public class Feast {
                 // cada pedaço vai para um baú diferente; baús cheios são pulados
                 while (free.get(order.get(cursor % order.size())).isEmpty()) cursor++;
                 int chest = order.get(cursor++ % order.size());
-                chests.get(chest).setItem(free.get(chest).removeLast(), new ItemStack(entry.material, amount));
+                chests.get(chest).setItem(free.get(chest).removeLast(), entry.createStack(amount));
                 placed++;
             }
         }
