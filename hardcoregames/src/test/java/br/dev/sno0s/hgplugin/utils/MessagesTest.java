@@ -120,10 +120,10 @@ class MessagesTest {
                 selector, null, null, EquipmentSlot.HAND));
         assertEquals("Completely different title", player.getOpenInventory().getTitle());
         assertInstanceOf(PluginMenu.class, player.getOpenInventory().getTopInventory().getHolder());
-        var icon = player.getOpenInventory().getTopInventory().getItem(0);
+        var icon = player.getOpenInventory().getTopInventory().getItem(10);
         assertEquals("§eJump master", icon.getItemMeta().getDisplayName());
         var click = new InventoryClickEvent(player.getOpenInventory(), InventoryType.SlotType.CONTAINER,
-                0, ClickType.LEFT, InventoryAction.PICKUP_ALL);
+                10, ClickType.LEFT, InventoryAction.PICKUP_ALL);
         listener.onKitClick(click);
         assertTrue(click.isCancelled());
         assertEquals("Kangaroo", GameState.getInstance().getPlayer(player.getUniqueId()).getSelectedKit());
