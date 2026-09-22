@@ -7,7 +7,6 @@ import br.dev.sno0s.hgplugin.worldgeneration.TerrainProfile;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 public class ConfigManager {
 
@@ -33,8 +32,9 @@ public class ConfigManager {
                 new InputStreamReader(resource, StandardCharsets.UTF_8));
         boolean changed = false;
         for (String key : bundled.getKeys(true)) {
-            if (!bundled.isConfigurationSection(key) && !config.isSet(key)) {
-                config.set(key, bundled.get(key));
+            Object value = bundled.get(key);
+            if (value != null && !bundled.isConfigurationSection(key) && !config.isSet(key)) {
+                config.set(key, value);
                 changed = true;
             }
         }
