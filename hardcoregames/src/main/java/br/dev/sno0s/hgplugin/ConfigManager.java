@@ -1,21 +1,41 @@
 package br.dev.sno0s.hgplugin;
 
 import br.dev.sno0s.hgplugin.utils.Messages;
+import br.dev.sno0s.hgplugin.utils.YamlFiles;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import br.dev.sno0s.hgplugin.worldgeneration.TerrainProfile;
 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ConfigManager {
 
+    static final String LEGACY_LOOT = "HGconfigs.feast-loot";
+
     private final Hgplugin plugin;
+    private final File feastFile;
+    private final YamlConfiguration feast;
 
     public ConfigManager(Hgplugin plugin) {
         this.plugin = plugin;
+        // Test doubles podem não expor a pasta de dados; o servidor sempre expõe.
+        File folder = plugin.getDataFolder();
+        // JavaPlugin#getConfig pode mascarar YAML inválido usando defaults; valide o disco primeiro.
+        if (folder != null) YamlFiles.read(new File(folder, "config.yml"));
+        this.feastFile = folder == null ? null : new File(folder, "feast.yml");
+        this.feast = YamlFiles.read(feastFile);
+
         boolean changed = mergeBundledDefaults(plugin.getConfig());
         if (migrateTerrainDefaults(plugin.getConfig())) {
+            changed = true;
+        }
+        if (adoptFeastLoot()) {
+            // O loot sai do config.yml; a cópia preserva a lista original do servidor.
             changed = true;
         }
         if (changed) {
@@ -30,15 +50,63 @@ public class ConfigManager {
         if (resource == null) return false;
         YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
                 new InputStreamReader(resource, StandardCharsets.UTF_8));
+        return YamlFiles.mergeDefaults(config, bundled);
+    }
+
+    /**
+     * Move o loot do config.yml para feast.yml uma única vez, preservando a lista
+     * do servidor. Instalações novas recebem a lista embutida no JAR.
+     * Retorna true quando o config.yml precisa ser regravado sem o loot antigo.
+     */
+    boolean adoptFeastLoot() {
+        if (feastFile == null) return false;
+        FileConfiguration config = plugin.getConfig();
+        boolean legacy = config.isSet(LEGACY_LOOT);
         boolean changed = false;
-        for (String key : bundled.getKeys(true)) {
-            Object value = bundled.get(key);
-            if (value != null && !bundled.isConfigurationSection(key) && !config.isSet(key)) {
-                config.set(key, value);
+        if (legacy) {
+            YamlFiles.backup(new File(plugin.getDataFolder(), "config.yml"));
+            YamlFiles.backup(feastFile);
+            // Um loot já definido no feast.yml é a escolha mais recente e prevalece.
+            if (!feast.isSet("loot")) {
+                feast.set("loot", config.get(LEGACY_LOOT));
+                changed = true;
+            } else if (!java.util.Objects.equals(feast.get("loot"), config.get(LEGACY_LOOT))) {
+                plugin.getLogger().warning(Messages.log("console.messages.conflicting-key", "key", LEGACY_LOOT));
+            }
+        }
+        if (!feast.isSet("loot")) {
+            Object bundled = YamlFiles.bundled("feast.yml").get("loot");
+            if (bundled != null) {
+                feast.set("loot", bundled);
                 changed = true;
             }
         }
-        return changed;
+        if (changed) {
+            feast.options().header(YamlFiles.bundled("feast.yml").options().header());
+            YamlFiles.save(feast, feastFile);
+        }
+        // Só remove a origem depois de salvar o destino com sucesso.
+        if (legacy) config.set(LEGACY_LOOT, null);
+        return legacy;
+    }
+
+    /**
+     * Entradas de loot do feast.yml. Uma lista malformada é reportada no console
+     * e nunca substituída em silêncio pelos padrões.
+     */
+    public List<Map<?, ?>> getFeastLoot() {
+        Object raw = feast.get("loot");
+        if (raw == null) return List.of();
+        if (!(raw instanceof List<?> entries)) {
+            plugin.getLogger().warning(Messages.log("console.feast.invalid-loot"));
+            return List.of();
+        }
+        List<Map<?, ?>> loot = new ArrayList<>();
+        for (Object entry : entries) {
+            if (entry instanceof Map<?, ?> item) loot.add(item);
+            else plugin.getLogger().warning(Messages.log("console.feast.invalid-entry", "entry", entry));
+        }
+        return loot;
     }
 
     // Migra somente valores dos presets anteriores e preserva configurações personalizadas.
@@ -153,7 +221,7 @@ public class ConfigManager {
         }
     }
 
-    /** Acesso direto ao FileConfiguration para usos avançados (ex: feast-loot list). */
+    /** Acesso direto ao FileConfiguration para usos avançados. */
     public FileConfiguration getConfig() {
         return plugin.getConfig();
     }

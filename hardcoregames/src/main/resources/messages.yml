@@ -1,4 +1,6 @@
 # Textos do plugin. Edite e reinicie o servidor para aplicar.
+# Nomes e lores de itens e kits ficam em items.yml; menus em menus.yml;
+# o loot do Feast em feast.yml. Chat e mensagens do Feast ficam neste arquivo.
 # Cores: &0 a &f; estilos: &l (negrito), &o (itálico), &r (reset).
 # {server-name} usa o nome abaixo; prefix aceita qualquer tag, ou "" para ocultar.
 # Paleta: {msg}, {highlight}, {error}, {success}, {broadcast}.
@@ -31,12 +33,26 @@ commands:
     description: "Exibe estatísticas de um jogador."
     usage: "/stats [jogador]"
 common:
+  cannot-drop: "Você não pode dropar este item."
   no-permission: "{error}Você não tem permissão para usar este comando."
   players-only: "Apenas jogadores podem usar este comando."
 compass:
   no-player: "Nenhum jogador encontrado dentro de {highlight}{radius} blocos{msg}."
   target: "Sua bússola aponta para {highlight}{player}{msg} ({x}, {y}, {z})"
 console:
+  feast:
+    invalid-enchantment: "Encantamento inválido no loot do feast.yml: {enchantment}"
+    invalid-enchantment-level: "Nível inválido para o encantamento no loot do feast.yml: {enchantment}"
+    invalid-enchantments: "Encantamentos inválidos no loot do feast.yml de {material}"
+    invalid-entry: "Entrada de loot ignorada no feast.yml: {entry}"
+    invalid-location: "Feast: localização inválida."
+    invalid-loot: "feast.yml: loot deve ser uma lista de itens; baús vazios."
+    invalid-material: "Material inválido no loot do feast.yml: {material}"
+    loot-distributed: "Loot distribuído em {filled} baús."
+    loot-loaded: "Itens de loot carregados: {count}"
+    missing-loot: "loot não configurado no feast.yml, baús vazios."
+    spawned: "Feast spawnado com sucesso!"
+    spawning: "Spawnando Feast em {x}, {y}, {z}"
   config-manager:
     invalid-terrain: "Configuração de terreno inválida; usando o preset clássico: {detail}"
     invalid-world-size: "HGconfigs.world-size deve ser par, entre 256 e 10000; usando 750."
@@ -53,19 +69,10 @@ console:
     close-failed: "Erro ao fechar banco: {detail}"
     connected: "Banco de dados conectado."
     disconnected: "Banco de dados desconectado."
-  feast:
-    invalid-location: "Feast: localização inválida."
-    invalid-enchantment: "Encantamento inválido no feast-loot: {enchantment}"
-    invalid-enchantments: "Encantamentos inválidos no feast-loot de {material}"
-    invalid-enchantment-level: "Nível inválido para o encantamento no feast-loot: {enchantment}"
-    invalid-material: "Material inválido no feast-loot: {material}"
-    loot-distributed: "Loot distribuído em {filled} baús."
-    loot-loaded: "Itens de loot carregados: {count}"
-    missing-loot: "feast-loot não configurado, baús vazios."
-    spawned: "Feast spawnado com sucesso!"
-    spawning: "Spawnando Feast em {x}, {y}, {z}"
   map-components:
     wall-finished: "Muralha finalizada: {size} blocos, topo Y={height}"
+  messages:
+    conflicting-key: "{key} estava em dois arquivos; o valor do arquivo novo foi mantido; confira o valor antigo no backup."
   plugin:
     database-failed: "Falha ao conectar banco de dados: {detail}"
     disabled: "Plugin finalizado!"
@@ -131,54 +138,21 @@ crafty:
 database:
   detail: "{detail}"
 errors:
+  backup-failed: "Não foi possível criar a cópia de segurança de {file}."
   messages-load: "Não foi possível carregar {file}. Confira a sintaxe do YAML."
-feast:
-  coordinates: "{highlight}X: {x} Z: {z}{broadcast}"
-  countdown: "Feast em {highlight}{seconds}s{broadcast}!"
-  five-minutes: "O Feast spawna em {highlight}5 minutos{broadcast} em {coordinates}!"
-  one-minute: "O Feast spawna em {highlight}1 minuto{broadcast} em {coordinates}!"
-  spawned: "O Feast spawnou em {coordinates}!"
-  loot-capacity: "Loot do Feast excede a capacidade: {items} stacks para {slots} slots."
-  spawned-here: "Feast spawnado na sua localização!"
-items:
-  cannot-drop: "Você não pode dropar este item."
-  compass:
-    lore:
-      - "&7Aponta para o jogador mais próximo"
-    name: "&eBússola"
-  kit-selector:
-    lore:
-      - "&7Clique para escolher seu kit!"
-    name: "&eSeletor de Kits"
-  kit-shop:
-    lore:
-      - "&7Selecione um kit para comprar!"
-    name: "&aLoja de kits"
-  rocket:
-    lore:
-      - "&7Clique para saltar!"
-      - "&7Segure &eShift &7para ir para frente."
-    name: "&6Kangaroo"
-  stats:
-    lore:
-      - "&7Clique para ver suas estatísticas!"
-    name: "&aEstatísticas"
+  messages-save: "Não foi possível salvar {file}."
 join:
   announcement: "{highlight}{player}{msg} entrou no servidor!"
   ended: "A partida terminou. Aguarde o próximo round."
   returning: "Bem-vindo de volta! A partida está em andamento."
   spectator: "A partida já começou. Você está no modo espectador."
 kits:
-  none: "nenhum"
-  list-separator: ", "
   available: "Kits disponíveis: {highlight}{kits}{msg}"
   kangaroo:
     cooldown: "Foguete bloqueado por {highlight}{seconds}s{error} (levou hit)."
-    description: "Use o foguete para saltar ou avançar!"
-  lumberjack:
-    description: "Machado de madeira infinito: derrube os troncos conectados da árvore."
-    name: "&2Lumberjack"
+  list-separator: ", "
   match-locked: "Não é possível trocar de kit durante a partida."
+  none: "nenhum"
   not-found: "Kit {highlight}{kit}{error} não encontrado."
   not-registered: "Você não está registrado na partida."
   selected: "Kit {highlight}{kit}{success} selecionado!"
@@ -195,34 +169,6 @@ match:
   started-by-you: "Você iniciou a partida."
   waiting-players: "Faltam {highlight}{players}{msg} jogadores para começar!"
   winner: "{highlight}{player}{broadcast} venceu a partida!"
-menus:
-  kits:
-    icon-lore:
-      - "&7{description}"
-    icon-name: "{highlight}{kit}"
-    title: "&8Selecione seu kit"
-  stats:
-    deaths:
-      lore:
-        - "&7Total de mortes:"
-        - "&f{value}"
-      name: "&cMortes"
-    kills:
-      lore:
-        - "&7Total de eliminações:"
-        - "&f{value}"
-      name: "&eKills"
-    last-kit:
-      lore:
-        - "&7Kit da última partida:"
-        - "&f{value}"
-      name: "&bÚltimo kit usado"
-    title: "&8Stats de &e{player}"
-    wins:
-      lore:
-        - "&7Total de vitórias:"
-        - "&f{value}"
-      name: "&6Vitórias"
 restart:
   requested: "Reinício solicitado por {highlight}{player}{broadcast}!"
 stats:
@@ -230,3 +176,13 @@ stats:
   no-personal-stats: "Você ainda não possui estatísticas."
   player-not-found: "Jogador {highlight}{player}{error} não encontrado."
   unavailable: "Estatísticas indisponíveis."
+
+
+feast:
+  coordinates: "{highlight}X: {x} Z: {z}{broadcast}"
+  countdown: "Feast em {highlight}{seconds}s{broadcast}!"
+  five-minutes: "O Feast spawna em {highlight}5 minutos{broadcast} em {coordinates}!"
+  loot-capacity: "Loot do Feast excede a capacidade: {items} stacks para {slots} slots."
+  one-minute: "O Feast spawna em {highlight}1 minuto{broadcast} em {coordinates}!"
+  spawned: "O Feast spawnou em {coordinates}!"
+  spawned-here: "Feast spawnado na sua localização!"

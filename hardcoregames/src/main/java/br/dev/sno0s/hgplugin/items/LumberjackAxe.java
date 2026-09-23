@@ -8,12 +8,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class LumberjackAxe {
     private LumberjackAxe() {}
 
+    /** Nome e lore vêm do bloco items.lumberjack, o mesmo do ícone no menu de kits. */
     public static ItemStack create() {
-        ItemStack axe = new ItemStack(Material.WOODEN_AXE);
+        ItemStack axe = PluginItems.create(Material.WOODEN_AXE, "lumberjack-axe", "items.lumberjack");
         ItemMeta meta = axe.getItemMeta();
         if (meta != null) {
             meta.setUnbreakable(true);
-            PluginItems.mark(meta, "lumberjack-axe");
             axe.setItemMeta(meta);
         }
         return axe;

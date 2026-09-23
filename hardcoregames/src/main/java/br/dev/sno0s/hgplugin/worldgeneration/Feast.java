@@ -77,9 +77,8 @@ public class Feast {
     private static List<LootEntry> loadLoot() {
         List<LootEntry> loot = new ArrayList<>();
 
-        // getMapList() retorna List<Map<?,?>> corretamente — getList() retornava LinkedHashMap
-        // e o cast para ConfigurationSection sempre falhava
-        List<Map<?, ?>> list = Hgplugin.getConfigManager().getConfig().getMapList("HGconfigs.feast-loot");
+        // O loot vive no feast.yml; entradas malformadas já saem reportadas no console.
+        List<Map<?, ?>> list = Hgplugin.getConfigManager().getFeastLoot();
 
         if (list.isEmpty()) {
             Bukkit.getLogger().warning(Messages.log("console.feast.missing-loot"));

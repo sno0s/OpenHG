@@ -36,7 +36,7 @@ public class OnDrop implements Listener {
 
         if (itemId != null && blockedItems.contains(itemId)) {
             event.setCancelled(true);
-            Messages.error(event.getPlayer(), "items.cannot-drop");
+            Messages.error(event.getPlayer(), "common.cannot-drop");
         }
     }
 }

@@ -43,7 +43,9 @@ class MessagesTest {
     @AfterEach
     void tearDown() throws Exception {
         // Evita que uma tradução deste teste afete os outros testes do plugin.
-        Files.writeString(file.toPath(), "{}\n");
+        for (String name : List.of("messages.yml", "items.yml", "menus.yml")) {
+            Files.writeString(new File(plugin.getDataFolder(), name).toPath(), "{}\n");
+        }
         Messages.load(plugin);
         MockBukkit.unmock();
     }
@@ -101,12 +103,16 @@ class MessagesTest {
 
     @Test
     void renamedSelectorAndKitStillOpenAndSelectUsingPersistentIdentifiers() throws Exception {
-        var config = YamlConfiguration.loadConfiguration(file);
-        config.set("items.kit-selector.name", "&dChoose a class");
-        config.set("items.kit-selector.lore", List.of("&7Custom description"));
-        config.set("menus.kits.title", "Completely different title");
-        config.set("kits.kangaroo.name", "Jump master");
-        config.save(file);
+        File itemsFile = new File(plugin.getDataFolder(), "items.yml");
+        var items = YamlConfiguration.loadConfiguration(itemsFile);
+        items.set("items.kit-selector.name", "&dChoose a class");
+        items.set("items.kit-selector.lore", List.of("&7Custom description"));
+        items.set("items.kangaroo.name", "Jump master");
+        items.save(itemsFile);
+        File menusFile = new File(plugin.getDataFolder(), "menus.yml");
+        var menus = YamlConfiguration.loadConfiguration(menusFile);
+        menus.set("menus.kits.title", "Completely different title");
+        menus.save(menusFile);
         Messages.load(plugin);
         GameState.init();
         var player = server.addPlayer();

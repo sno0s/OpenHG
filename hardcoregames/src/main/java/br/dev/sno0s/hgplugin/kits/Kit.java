@@ -7,6 +7,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public abstract class Kit {
 
@@ -16,11 +20,24 @@ public abstract class Kit {
 
     public abstract String getName();
 
-    public String getDisplayName() {
-        return Messages.text("kits." + getName().toLowerCase(java.util.Locale.ROOT) + ".name");
+    /**
+     * Bloco do items.yml com o nome, a lore e a descrição do kit. É a fonte única
+     * usada pelo ícone do menu, pelo item do kit e pelas mensagens de chat.
+     * Um kit novo só precisa de um bloco items.&lt;nome em minúsculas&gt;.
+     */
+    public String getCatalogKey() {
+        return "items." + getName().toLowerCase(Locale.ROOT);
     }
 
-    public abstract String getDescription();
+    public String getDisplayName() {
+        return Messages.text(getCatalogKey() + ".name");
+    }
+
+    public String getDescription() {
+        String key = getCatalogKey() + ".description";
+        return Messages.contains(key) ? Messages.text(key)
+                : String.join(" ", Messages.lines(getCatalogKey() + ".lore"));
+    }
 
     // -------------------------
     // Ícone para o seletor de kits (GUI futura)
@@ -34,7 +51,12 @@ public abstract class Kit {
         if (meta != null) {
             meta.setDisplayName(Messages.text("menus.kits.icon-name", "kit", getDisplayName()));
             PluginItems.mark(meta, getName());
-            meta.setLore(Messages.lines("menus.kits.icon-lore", "description", getDescription()));
+            List<String> lore = new ArrayList<>();
+            for (String line : Messages.lines("menus.kits.icon-lore", "description", getDescription())) {
+                if (line.equals("{lore}")) lore.addAll(Messages.lines(getCatalogKey() + ".lore"));
+                else lore.add(line);
+            }
+            meta.setLore(lore);
             // O ícone representa o kit; não exibir dano/velocidade do item vanilla.
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
             icon.setItemMeta(meta);

@@ -1,5 +1,7 @@
 HGconfigs:
   # Nome, prefixo, cores e textos ficam em messages.yml.
+  # Nomes e lores de itens e kits em items.yml, menus em menus.yml.
+  # Textos e loot do Feast ficam em feast.yml.
 
   # Cores das mensagens — use códigos §x ou nomes como "§e", "§a", etc.
   mushroom-density: 40 # Alvo por chunk: valor a valor+10; 0 desliga; sem cogumelos na jungle
@@ -31,27 +33,3 @@ HGconfigs:
     api-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpYXQiOjE3NzU3MDA2MjMsInRva2VuX2lkIjoxfQ.2Naa4D69MBbg6__x6ik0G6iU3h7jC2WzyTtbCq_qHSU"
     server-id: "3f46815c-8102-4975-9f57-f367310bdc4e"
     restart-delay: 15  # segundos após o fim da partida para reiniciar
-
-  feast-loot:
-    # amount é o total global do material nos 12 baús, antes da distribuição aleatória.
-    - material: "DIAMOND_SWORD"
-      amount: 1
-    - material: "IRON_SWORD"
-      amount: 2
-    # Livros encantados usam o mesmo formato; também funciona em itens normais.
-    # - material: "ENCHANTED_BOOK"
-    #   amount: 1
-    #   enchantments:
-    #     SHARPNESS: 1
-    - material: "GOLDEN_APPLE"
-      amount: 2
-    - material: "DIAMOND_HELMET"
-      amount: 1
-    - material: "BOW"
-      amount: 2
-    - material: "ARROW"
-      amount: 16
-    - material: "COBWEB"
-      amount: 4
-    - material: "TNT"
-      amount: 2

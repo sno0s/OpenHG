@@ -1,0 +1,34 @@
+# Títulos e ícones dos menus. Edite e reinicie o servidor para aplicar.
+# Cores: &0 a &f; estilos: &l (negrito), &o (itálico), &r (reset).
+# Paleta: {msg}, {highlight}, {error}, {success}, {broadcast}.
+# O menu de kits monta cada ícone com {kit} e {lore} vindos do items.yml.
+# Preserve os parâmetros nomeados de cada texto, como {player} e {value}.
+# Chaves ausentes são preenchidas na inicialização, preservando as personalizações.
+menus:
+  kits:
+    icon-lore:
+      - "{lore}"
+    icon-name: "{highlight}{kit}"
+    title: "&8Selecione seu kit"
+  stats:
+    deaths:
+      lore:
+        - "&7Total de mortes:"
+        - "&f{value}"
+      name: "&cMortes"
+    kills:
+      lore:
+        - "&7Total de eliminações:"
+        - "&f{value}"
+      name: "&eKills"
+    last-kit:
+      lore:
+        - "&7Kit da última partida:"
+        - "&f{value}"
+      name: "&bÚltimo kit usado"
+    title: "&8Stats de &e{player}"
+    wins:
+      lore:
+        - "&7Total de vitórias:"
+        - "&f{value}"
+      name: "&6Vitórias"

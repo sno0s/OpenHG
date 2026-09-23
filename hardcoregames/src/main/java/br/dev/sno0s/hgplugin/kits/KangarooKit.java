@@ -1,6 +1,5 @@
 package br.dev.sno0s.hgplugin.kits;
 
-import br.dev.sno0s.hgplugin.utils.Messages;
 import br.dev.sno0s.hgplugin.items.Rocket;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,11 +10,6 @@ public class KangarooKit extends Kit {
     @Override
     public String getName() {
         return "Kangaroo";
-    }
-
-    @Override
-    public String getDescription() {
-        return Messages.text("kits.kangaroo.description");
     }
 
     @Override

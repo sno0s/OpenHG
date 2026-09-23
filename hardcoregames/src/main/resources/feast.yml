@@ -1,0 +1,25 @@
+# Loot do Feast. Edite e reinicie o servidor para aplicar.
+# amount é o total global nos 12 baús, não por baú.
+# Listas vazias são preservadas. Mensagens ficam em messages.yml.
+loot:
+  - material: "DIAMOND_SWORD"
+    amount: 1
+  - material: "IRON_SWORD"
+    amount: 2
+  # Livros encantados usam o mesmo formato; também funciona em itens normais.
+  # - material: "ENCHANTED_BOOK"
+  #   amount: 1
+  #   enchantments:
+  #     SHARPNESS: 1
+  - material: "GOLDEN_APPLE"
+    amount: 2
+  - material: "DIAMOND_HELMET"
+    amount: 1
+  - material: "BOW"
+    amount: 2
+  - material: "ARROW"
+    amount: 16
+  - material: "COBWEB"
+    amount: 4
+  - material: "TNT"
+    amount: 2

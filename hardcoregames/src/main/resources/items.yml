@@ -1,0 +1,33 @@
+# Nomes e lores dos itens do plugin. Edite e reinicie o servidor para aplicar.
+# Cores: &0 a &f; estilos: &l (negrito), &o (itálico), &r (reset).
+# Paleta: {msg}, {highlight}, {error}, {success}, {broadcast}.
+# Cada kit tem um bloco items.<kit> com name e lore: o mesmo texto
+# vale para o item entregue pelo kit e para o ícone no menu de kits.
+# Ao implementar e registrar um kit novo, adicione seu bloco aqui.
+# Chaves ausentes são preenchidas na inicialização, preservando as personalizações.
+items:
+  compass:
+    lore:
+      - "&7Aponta para o jogador mais próximo"
+    name: "&eBússola"
+  kangaroo:
+    lore:
+      - "&7Clique para saltar!"
+      - "&7Segure &eShift &7para ir para frente."
+    name: "&6Kangaroo"
+  kit-selector:
+    lore:
+      - "&7Clique para escolher seu kit!"
+    name: "&eSeletor de Kits"
+  kit-shop:
+    lore:
+      - "&7Selecione um kit para comprar!"
+    name: "&aLoja de kits"
+  lumberjack:
+    lore:
+      - "&7Derruba os troncos conectados da árvore."
+    name: "&2Lumberjack"
+  stats:
+    lore:
+      - "&7Clique para ver suas estatísticas!"
+    name: "&aEstatísticas"
