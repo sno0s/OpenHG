@@ -59,13 +59,10 @@ public class WorldGeneration {
         }, 40L); // ~2s
 
         Bukkit.getLogger().info(Messages.log("console.world-generation.setting-weather"));
-        //configs de tempo
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        world.setTime(1000);
-        //configs de clima
-        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-        world.setStorm(false);
-        world.setThundering(false);
+        // Reaplica após a inicialização e durante a partida: outros componentes podem
+        // alterar o relógio/clima depois de createWorld, inclusive em dimensões modernas.
+        ArenaEnvironment.apply(world);
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> ArenaEnvironment.apply(world), 1L, 20L);
 
         //tempo final de contagem
         long fim = System.currentTimeMillis();
