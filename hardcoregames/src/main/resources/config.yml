@@ -1,4 +1,10 @@
 HGconfigs:
+  combat:
+    sword-blocking:
+      enabled: true
+      # 1 ponto = meio coração de dano base, antes da armadura/encantamentos.
+      damage-reduction: 1.0
+
   # Nome, prefixo, cores e textos ficam em messages.yml.
   # Nomes e lores de itens e kits em items.yml, menus em menus.yml.
   # Textos e loot do Feast ficam em feast.yml.

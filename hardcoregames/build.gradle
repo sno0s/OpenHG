@@ -79,3 +79,14 @@ processResources {
         expand props
     }
 }
+
+tasks.register('blockhitPack', Zip) {
+    from(rootProject.file('../resourcepacks/blockhit'))
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    archiveFileName = 'openhg-blockhit-26.2.zip'
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+tasks.named('shadowJar') {
+    dependsOn tasks.named('blockhitPack')
+}

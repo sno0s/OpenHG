@@ -55,7 +55,7 @@ pipeline {
                         sha256sum "build/libs/$PLUGIN_JAR"
                     '''
                 }
-                archiveArtifacts artifacts: "hardcoregames/build/libs/${env.PLUGIN_JAR}", fingerprint: true
+                archiveArtifacts artifacts: "hardcoregames/build/libs/${env.PLUGIN_JAR},hardcoregames/build/libs/openhg-blockhit-26.2.zip", fingerprint: true
             }
         }
 

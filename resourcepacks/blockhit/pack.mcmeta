@@ -1,0 +1,13 @@
+{
+  "pack": {
+    "min_format": [
+      88,
+      0
+    ],
+    "max_format": [
+      88,
+      0
+    ],
+    "description": "OpenHG · Bloqueio clássico de espada (1.7)"
+  }
+}

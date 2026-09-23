@@ -1,0 +1,29 @@
+{
+  "parent": "minecraft:item/stone_sword",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        -134.25,
+        36.15,
+        -173.1
+      ],
+      "translation": [
+        -4.5,
+        3.75,
+        3.25
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        50.97,
+        -35.92,
+        -3
+      ],
+      "translation": [
+        -4.25,
+        3.75,
+        3.25
+      ]
+    }
+  }
+}

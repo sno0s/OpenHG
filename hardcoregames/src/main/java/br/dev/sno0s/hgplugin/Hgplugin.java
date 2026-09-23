@@ -38,6 +38,11 @@ public final class Hgplugin extends JavaPlugin {
         Messages.load(this);
         Bukkit.getLogger().info(Messages.log("console.plugin.enabled"));
         configManager = new ConfigManager(this);
+        var swordBlocking = new br.dev.sno0s.hgplugin.listeners.SwordBlockingListener(this,
+                new br.dev.sno0s.hgplugin.items.SwordBlocking(configManager.isSwordBlockingEnabled(),
+                        configManager.getSwordBlockingReduction()));
+        getServer().getPluginManager().registerEvents(swordBlocking, this);
+        getServer().getOnlinePlayers().forEach(swordBlocking::updateInventory);
         GameState.init();
         for (String name : java.util.List.of("startmatch", "spawnfeast", "kit", "stats", "restarthg")) {
             var command = getCommand(name);

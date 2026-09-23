@@ -54,6 +54,7 @@ console:
     spawned: "Feast spawnado com sucesso!"
     spawning: "Spawnando Feast em {x}, {y}, {z}"
   config-manager:
+    invalid-sword-blocking: "combat.sword-blocking.damage-reduction deve estar entre 0 e 20; usando 1 (meio coração)."
     invalid-terrain: "Configuração de terreno inválida; usando o preset clássico: {detail}"
     invalid-world-size: "HGconfigs.world-size deve ser par, entre 256 e 10000; usando 750."
   crafty-validation:

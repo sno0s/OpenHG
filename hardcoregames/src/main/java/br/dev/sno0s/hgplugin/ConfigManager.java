@@ -139,6 +139,17 @@ public class ConfigManager {
         return true;
     }
 
+    public boolean isSwordBlockingEnabled() {
+        return plugin.getConfig().getBoolean("HGconfigs.combat.sword-blocking.enabled", true);
+    }
+
+    public float getSwordBlockingReduction() {
+        double value = plugin.getConfig().getDouble("HGconfigs.combat.sword-blocking.damage-reduction", 1.0);
+        if (Double.isFinite(value) && value >= 0 && value <= 20) return (float) value;
+        plugin.getLogger().warning(Messages.log("console.config-manager.invalid-sword-blocking"));
+        return 1.0f;
+    }
+
     public double getSoupHeal() {
         return plugin.getConfig().getDouble("HGconfigs.soup-heal", 6.0);
     }

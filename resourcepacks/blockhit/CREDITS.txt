@@ -1,0 +1,6 @@
+OpenHG classic sword-blocking pack, adapted for Minecraft Java 26.2.
+Third-person transforms adapted from Wilo's 1.7 Sword Blocking v1.0.0.
+Author's license: CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/).
+Source: https://modrinth.com/resourcepack/wilos-1.7-sword-blocking
+Reference SHA-1: e64f9c2cb9cd7c517a15f3e524e985faca2719e4
+No Minecraft textures are redistributed; models inherit the client's own textures.
