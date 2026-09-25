@@ -44,7 +44,7 @@ public final class Hgplugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(swordBlocking, this);
         getServer().getOnlinePlayers().forEach(swordBlocking::updateInventory);
         GameState.init();
-        for (String name : java.util.List.of("startmatch", "spawnfeast", "kit", "stats", "restarthg")) {
+        for (String name : java.util.List.of("startmatch", "spawnfeast", "kit", "stats", "restarthg", "timeskip")) {
             var command = getCommand(name);
             command.setDescription(Messages.text("commands." + name + ".description"));
             command.setUsage(Messages.text("commands." + name + ".usage"));
@@ -91,6 +91,7 @@ public final class Hgplugin extends JavaPlugin {
         getCommand("stats").setExecutor(new br.dev.sno0s.hgplugin.commands.StatsCommand());
 
         getCommand("startmatch").setExecutor(new br.dev.sno0s.hgplugin.commands.StartMatchCommand());
+        getCommand("timeskip").setExecutor(new br.dev.sno0s.hgplugin.commands.TimeSkipCommand());
         getCommand("spawnfeast").setExecutor(new br.dev.sno0s.hgplugin.commands.SpawnFeastCommand());
         getCommand("restarthg").setExecutor(new br.dev.sno0s.hgplugin.commands.RestartCommand());
     }

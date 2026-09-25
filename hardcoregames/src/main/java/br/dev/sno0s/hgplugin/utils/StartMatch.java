@@ -17,12 +17,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Random;
 
 import java.util.Collection;
 
 public class StartMatch {
+    private static BukkitTask invincibilityTask;
 
     /*
         if all players are set in, the match will start
@@ -62,7 +64,7 @@ public class StartMatch {
         }
 
         // invincibility countdown
-        new BukkitRunnable() {
+        invincibilityTask = new BukkitRunnable() {
             int countdown = 105; // 1m45s
 
             @Override
@@ -79,6 +81,7 @@ public class StartMatch {
                         p.setInvulnerable(false);
 
                     }
+                    invincibilityTask = null;
                     cancel(); // Para o contador
                     return;
                 }
@@ -129,5 +132,16 @@ public class StartMatch {
                 Messages.broadcast("feast.spawned", "coordinates", Messages.text("feast.coordinates", "x", feastX, "z", feastZ));
             }
         }, 20L * 60 * 10); // 12000 ticks
+    }
+
+    /** Encerra a invencibilidade atual, destinado ao comando de teste. */
+    public static boolean skipInvincibility() {
+        if (invincibilityTask == null || GameState.getInstance() == null
+                || GameState.getInstance().getPhase() != MatchPhase.IN_PROGRESS) return false;
+        invincibilityTask.cancel();
+        invincibilityTask = null;
+        for (Player player : Bukkit.getOnlinePlayers()) player.setInvulnerable(false);
+        Messages.broadcastInfo("match.invincibility-ended");
+        return true;
     }
 }

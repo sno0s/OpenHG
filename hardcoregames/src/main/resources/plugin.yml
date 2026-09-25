@@ -12,6 +12,8 @@ commands:
   stats: {}
   restarthg:
     permission: hg.plugin.restarthg
+  timeskip:
+    permission: hg.plugin.timeskip
 
 permissions:
   hg.plugin.startmatch:
@@ -19,4 +21,6 @@ permissions:
   hg.plugin.spawnfeast:
     default: op
   hg.plugin.restarthg:
+    default: op
+  hg.plugin.timeskip:
     default: op

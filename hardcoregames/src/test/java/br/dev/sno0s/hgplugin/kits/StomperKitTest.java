@@ -75,20 +75,18 @@ class StomperKitTest {
     }
 
     @Test
-    void lowFallsOnlyDealResidualDamageAndDoNotImpact() {
+    void lowFallsDealDamageProportionalToHeight() {
         target.setHealth(20);
-        var event = fall(34);
+        var event = fall(17.5f);
         assertEquals(1.0, event.getDamage());
-        assertEquals(20, target.getHealth());
+        assertEquals(10.0, target.getHealth(), 0.001);
     }
 
     @Test
     void impactDamageScalesWithFallHeight() {
         target.setHealth(20);
-        fall(10);
-        assertEquals(20, target.getHealth());
-        // Change the configured threshold in this listener's contract is tested by the minimum gate above.
-        assertEquals(20, target.getHealth());
+        fall(35);
+        assertEquals(0, target.getHealth());
     }
 
     @Test

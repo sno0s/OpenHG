@@ -29,6 +29,9 @@ commands:
   startmatch:
     description: "Inicia jogo mesmo que não contenha nenhum jogador."
     usage: "/startmatch"
+  timeskip:
+    description: "Pula a invencibilidade da partida para testes."
+    usage: "/timeskip"
   stats:
     description: "Exibe estatísticas de um jogador."
     usage: "/stats [jogador]"
@@ -165,6 +168,8 @@ match:
   draw: "Empate! Ninguém sobreviveu."
   invincibility-countdown: "Faltam {highlight}{seconds}s{msg} de invencibilidade."
   invincibility-ended: "A invencibilidade acabou!"
+  timeskip-inactive: "Não há invencibilidade ativa para pular."
+  timeskip-success: "Invencibilidade encerrada para teste."
   kill: "Você eliminou {highlight}{player}{success}! Kills: {highlight}{kills}{success}"
   started: "A partida começou!"
   started-by-you: "Você iniciou a partida."

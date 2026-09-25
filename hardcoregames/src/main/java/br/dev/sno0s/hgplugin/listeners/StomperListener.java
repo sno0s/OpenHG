@@ -28,9 +28,9 @@ public final class StomperListener implements Listener {
 
         double fallHeight = Math.max(0, stomper.getFallDistance());
         event.setDamage(SELF_FALL_DAMAGE);
-        if (fallHeight < minimumFallHeight) return;
-
-        double impactDamage = Math.max(0, fallHeight - 3.0);
+        // A altura configurada é a referência para matar um jogador cheio (20 HP).
+        // Quedas menores continuam causando dano na mesma proporção, sem degrau.
+        double impactDamage = Math.max(0, fallHeight / minimumFallHeight * 20.0);
         for (var entity : stomper.getWorld().getNearbyEntities(stomper.getLocation(), impactRadius, impactRadius, impactRadius)) {
             if (!(entity instanceof Player target) || target.equals(stomper) || !isParticipant(target)) continue;
             // setHealth ignora armadura e efeitos de redução; 0 deixa o fluxo de morte do servidor agir.
