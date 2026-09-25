@@ -198,6 +198,16 @@ public class ConfigManager {
         return plugin.getConfig().getInt("HGconfigs.kangaroo.hit-cooldown", 3);
     }
 
+    public double getStomperImpactRadius() {
+        double radius = plugin.getConfig().getDouble("HGconfigs.stomper.impact-radius", 7.0);
+        return Double.isFinite(radius) && radius > 0 && radius <= 32 ? radius : 7.0;
+    }
+
+    public double getStomperMinimumFallHeight() {
+        double height = plugin.getConfig().getDouble("HGconfigs.stomper.minimum-fall-height", 35.0);
+        return Double.isFinite(height) && height >= 35 && height <= 40 ? height : 35.0;
+    }
+
     public double getBiomeFrequency() {
         return plugin.getConfig().getDouble("HGconfigs.terrain.biome-frequency", 0.008);
     }

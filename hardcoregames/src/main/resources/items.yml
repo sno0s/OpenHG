@@ -36,3 +36,8 @@ items:
     lore:
       - "&7Clique para ver suas estatísticas!"
     name: "&aEstatísticas"
+  stomper:
+    name: "&6Stomper"
+    lore:
+      - "&7Use sua queda para causar dano"
+      - "&7aos jogadores próximos."

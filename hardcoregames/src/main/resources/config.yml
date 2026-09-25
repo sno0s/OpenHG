@@ -20,6 +20,9 @@ HGconfigs:
   soup-food: 7 #Double
   kangaroo:
     hit-cooldown: 3  # segundos sem poder usar o foguete após receber hit de player
+  stomper:
+    impact-radius: 7.0       # raio horizontal/vertical do impacto, em blocos
+    minimum-fall-height: 35.0 # altura mínima para causar o impacto letal
 
   terrain:
     generator-version: 3    # Migração automática dos valores do preset antigo
