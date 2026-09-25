@@ -8,7 +8,8 @@ public class KitRegistry {
             new KangarooKit(),
             new LumberjackKit(),
             new FishermanKit(),
-            new StomperKit()
+            new StomperKit(),
+            new NinjaKit()
     );
 
     public static List<Kit> getAll() {

@@ -208,6 +208,11 @@ public class ConfigManager {
         return Double.isFinite(height) && height >= 35 && height <= 40 ? height : 35.0;
     }
 
+    public int getNinjaCooldown() {
+        int cooldown = plugin.getConfig().getInt("HGconfigs.ninja.cooldown", 15);
+        return cooldown >= 0 && cooldown <= 3600 ? cooldown : 15;
+    }
+
     public double getBiomeFrequency() {
         return plugin.getConfig().getDouble("HGconfigs.terrain.biome-frequency", 0.008);
     }

@@ -23,6 +23,8 @@ HGconfigs:
   stomper:
     impact-radius: 7.0       # raio horizontal/vertical do impacto, em blocos
     minimum-fall-height: 35.0 # altura mínima para causar o impacto letal
+  ninja:
+    cooldown: 15              # segundos entre teletransportes para o último alvo atingido
 
   terrain:
     generator-version: 3    # Migração automática dos valores do preset antigo

@@ -30,8 +30,14 @@ items:
     name: "&aLoja de kits"
   lumberjack:
     lore:
-      - "&7Derruba os troncos conectados da árvore."
+      - "&7Derruba os troncos"
+      - "&7conectados da árvore."
     name: "&6Lumberjack"
+  ninja:
+    name: "&6Ninja"
+    lore:
+      - "&7Aperte Shift para teleportar até"
+      - "&7seu último alvo atingido."
   stats:
     lore:
       - "&7Clique para ver suas estatísticas!"

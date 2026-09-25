@@ -4,7 +4,7 @@ O plugin cria arquivos separados em `plugins/HardcoreGamesPlugin/` ao iniciar:
 
 | Arquivo | Conteúdo |
 | --- | --- |
-| `items.yml` | Nomes, lores e descrições dos itens e dos kits (Kangaroo, Lumberjack, Fisherman, Stomper) |
+| `items.yml` | Nomes, lores e descrições dos itens e dos kits (Kangaroo, Lumberjack, Fisherman, Stomper, Ninja) |
 | `menus.yml` | Títulos e ícones do menu de kits e do menu de estatísticas |
 | `feast.yml` | Lista `loot` do Feast, com totais globais para os 12 baús |
 | `messages.yml` | Chat, mensagens do Feast, ajuda dos comandos e diagnósticos do console/Crafty |

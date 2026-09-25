@@ -86,6 +86,8 @@ public final class Hgplugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new br.dev.sno0s.hgplugin.listeners.FishermanListener(), this);
         getServer().getPluginManager().registerEvents(new br.dev.sno0s.hgplugin.listeners.StomperListener(
                 configManager.getStomperImpactRadius(), configManager.getStomperMinimumFallHeight()), this);
+        getServer().getPluginManager().registerEvents(new br.dev.sno0s.hgplugin.listeners.NinjaListener(
+                configManager.getNinjaCooldown()), this);
 
         getCommand("kit").setExecutor(new br.dev.sno0s.hgplugin.commands.KitCommand());
         getCommand("stats").setExecutor(new br.dev.sno0s.hgplugin.commands.StatsCommand());
