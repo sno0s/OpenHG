@@ -1,1 +1,12 @@
 /.openhg-context/
+
+# Local agent configuration, skills and ECC context
+/AGENTS.md
+/CLAUDE.md
+/.agents/
+/.claude/
+/.codex/
+/docs/ecc.md
+/docs/ecc-source.json
+/docs/licenses/ECC-LICENSE.txt
+/scripts/verify.py

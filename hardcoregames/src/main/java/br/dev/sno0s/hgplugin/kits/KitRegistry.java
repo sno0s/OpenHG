@@ -6,7 +6,8 @@ public class KitRegistry {
 
     private static final List<Kit> KITS = List.of(
             new KangarooKit(),
-            new LumberjackKit()
+            new LumberjackKit(),
+            new FishermanKit()
     );
 
     public static List<Kit> getAll() {

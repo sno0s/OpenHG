@@ -83,6 +83,7 @@ public final class Hgplugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EnchantListener(), this);
         getServer().getPluginManager().registerEvents(new AxeDamageListener(), this);
         getServer().getPluginManager().registerEvents(new br.dev.sno0s.hgplugin.listeners.LumberjackListener(), this);
+        getServer().getPluginManager().registerEvents(new br.dev.sno0s.hgplugin.listeners.FishermanListener(), this);
 
         getCommand("kit").setExecutor(new br.dev.sno0s.hgplugin.commands.KitCommand());
         getCommand("stats").setExecutor(new br.dev.sno0s.hgplugin.commands.StatsCommand());

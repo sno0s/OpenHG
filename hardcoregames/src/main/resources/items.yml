@@ -6,6 +6,11 @@
 # Ao implementar e registrar um kit novo, adicione seu bloco aqui.
 # Chaves ausentes são preenchidas na inicialização, preservando as personalizações.
 items:
+  fisherman:
+    name: "&6Fisherman"
+    lore:
+      - "&7Fisgue um jogador e recolha a vara"
+      - "&7para teleportá-lo até você."
   compass:
     lore:
       - "&7Aponta para o jogador mais próximo"
@@ -26,7 +31,7 @@ items:
   lumberjack:
     lore:
       - "&7Derruba os troncos conectados da árvore."
-    name: "&2Lumberjack"
+    name: "&6Lumberjack"
   stats:
     lore:
       - "&7Clique para ver suas estatísticas!"
