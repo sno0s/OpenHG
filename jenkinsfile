@@ -38,7 +38,6 @@ pipeline {
             post {
                 always {
                     junit testResults: 'hardcoregames/build/test-results/test/TEST-*.xml', allowEmptyResults: false
-                    archiveArtifacts artifacts: 'hardcoregames/build/reports/tests/test/**', allowEmptyArchive: true
                 }
             }
         }
@@ -53,9 +52,14 @@ pipeline {
                         grep -q '^plugin.yml$' build/jar-contents.txt
                         grep -q '^br/dev/sno0s/hgplugin/libs/sqlite/JDBC.class$' build/jar-contents.txt
                         sha256sum "build/libs/$PLUGIN_JAR"
+                        rm -rf ../artifacts
+                        mkdir -p ../artifacts/test-report
+                        cp "build/libs/$PLUGIN_JAR" "../artifacts/$PLUGIN_JAR"
+                        cp "build/libs/openhg-blockhit-26.2.zip" "../artifacts/openhg-blockhit-26.2.zip"
+                        cp -R build/reports/tests/test/. ../artifacts/test-report/
                     '''
                 }
-                archiveArtifacts artifacts: "hardcoregames/build/libs/${env.PLUGIN_JAR},hardcoregames/build/libs/openhg-blockhit-26.2.zip", fingerprint: true
+                archiveArtifacts artifacts: "artifacts/${env.PLUGIN_JAR},artifacts/openhg-blockhit-26.2.zip,artifacts/test-report/**", fingerprint: true
             }
         }
 
