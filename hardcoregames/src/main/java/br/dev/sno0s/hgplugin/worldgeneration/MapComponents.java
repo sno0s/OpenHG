@@ -3,6 +3,7 @@ package br.dev.sno0s.hgplugin.worldgeneration;
 import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.TileState;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Iterator;
@@ -40,21 +41,38 @@ public final class MapComponents {
             else if (y == top) material = Material.SMOOTH_STONE;
             else if (y == top - 3) material = Material.POLISHED_ANDESITE;
             else if (column.accent() && y == top - 1) material = Material.CHISELED_STONE_BRICKS;
-            else material = wallMaterial(x, y, z, ground);
-            world.getBlockAt(x, y, z).setType(material, false);
+            else material = wallMaterial(x, y, z, ground, top, column.accent());
+            place(world, x, y, z, material);
         }
         if (column.merlon()) {
-            world.getBlockAt(x, top + 1, z).setType(Material.STONE_BRICKS, false);
-            world.getBlockAt(x, top + 2, z).setType(Material.STONE_BRICK_SLAB, false);
+            place(world, x, top + 1, z, column.accent() ? Material.DARK_OAK_PLANKS : Material.STONE_BRICKS);
+            place(world, x, top + 2, z, Material.STONE_BRICK_SLAB);
         } else if (!column.roofOnly()) {
-            world.getBlockAt(x, top + 1, z).setType(Material.STONE_BRICK_SLAB, false);
+            place(world, x, top + 1, z, Material.STONE_BRICK_SLAB);
         }
     }
 
-    private static Material wallMaterial(int x, int y, int z, int ground) {
+    private static void place(World world, int x, int y, int z, Material material) {
+        var block = world.getBlockAt(x, y, z);
+        // Construções anteriores podem deixar baús/fornalhas sob a nova muralha.
+        // Limpe o estado de bloco antes de trocar o material para não deixar tile entities órfãs.
+        if (block.getState() instanceof TileState) block.setType(Material.AIR, false);
+        block.setType(material, false);
+    }
+
+    private static Material wallMaterial(int x, int y, int z, int ground, int top, boolean accent) {
         int value = Math.floorMod((x * 73856093) ^ (y * 19349663) ^ (z * 83492791), 100);
+        // Contrafortes de madeira marcam a face externa e quebram a massa de pedra.
+        if (accent && y >= ground + 2 && y < top - 1) {
+            return Math.floorMod(y, 5) == 0 ? Material.DARK_OAK_PLANKS : Material.SPRUCE_LOG;
+        }
+        // Faixas horizontais de madeira atravessam a muralha em intervalos regulares.
+        if (Math.floorMod(y - ground, 12) == 0 && y > ground + 3 && value < 72) {
+            return Material.SPRUCE_PLANKS;
+        }
         if (value < 7) return Material.CRACKED_STONE_BRICKS;
-        if (y < ground + 6 && value < 22) return Material.MOSSY_STONE_BRICKS;
+        if (value < 17) return Material.MOSSY_STONE_BRICKS;
+        if (value < 28) return Material.POLISHED_ANDESITE;
         return Material.STONE_BRICKS;
     }
 }
