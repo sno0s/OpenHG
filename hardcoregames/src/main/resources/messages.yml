@@ -152,8 +152,11 @@ join:
   spectator: "A partida já começou. Você está no modo espectador."
 kits:
   available: "Kits disponíveis: {highlight}{kits}{msg}"
+  cooldown-bar: "{highlight}{kit}{msg} {bar} {highlight}{seconds}s"
   kangaroo:
-    cooldown: "Foguete bloqueado por {highlight}{seconds}s{error} (levou hit)."
+    cooldown: "Foguete bloqueado por {highlight}{seconds}s{error}."
+  ninja:
+    no-target: "Não há alvo válido para o teleporte."
   list-separator: ", "
   match-locked: "Não é possível trocar de kit durante a partida."
   none: "nenhum"

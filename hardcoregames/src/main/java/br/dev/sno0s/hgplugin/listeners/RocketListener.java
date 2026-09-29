@@ -4,6 +4,7 @@ import br.dev.sno0s.hgplugin.items.PluginItems;
 import br.dev.sno0s.hgplugin.GameState;
 import br.dev.sno0s.hgplugin.Hgplugin;
 import br.dev.sno0s.hgplugin.utils.Messages;
+import br.dev.sno0s.hgplugin.utils.CooldownFeedback;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -114,6 +115,7 @@ public class RocketListener implements Listener {
 
         int cooldownSeconds = Hgplugin.getConfigManager().getKangarooHitCooldown();
         hitCooldownExpiry.put(victim.getUniqueId(), System.currentTimeMillis() + cooldownSeconds * 1000L);
+        CooldownFeedback.start(victim, "Kangaroo", cooldownSeconds * 1000L);
     }
 
     // -------------------------

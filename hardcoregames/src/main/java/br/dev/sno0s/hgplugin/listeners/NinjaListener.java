@@ -2,6 +2,8 @@ package br.dev.sno0s.hgplugin.listeners;
 
 import br.dev.sno0s.hgplugin.GameState;
 import br.dev.sno0s.hgplugin.MatchPhase;
+import br.dev.sno0s.hgplugin.utils.CooldownFeedback;
+import br.dev.sno0s.hgplugin.utils.Messages;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,15 +46,23 @@ public final class NinjaListener implements Listener {
         UUID uuid = ninja.getUniqueId();
         long now = System.currentTimeMillis();
         long availableAt = cooldowns.getOrDefault(uuid, 0L);
-        if (now < availableAt) return;
+        if (now < availableAt) {
+            Messages.send(ninja, "kits.cooldown", "kit", "Ninja",
+                    "seconds", (availableAt - now + 999) / 1000);
+            return;
+        }
 
         UUID targetId = lastTargets.get(uuid);
         Player target = targetId == null ? null : org.bukkit.Bukkit.getPlayer(targetId);
         if (target == null || !isParticipant(target) || !ninja.getWorld().equals(target.getWorld())
-                || ninja.getLocation().distanceSquared(target.getLocation()) > MAX_RANGE * MAX_RANGE) return;
+                || ninja.getLocation().distanceSquared(target.getLocation()) > MAX_RANGE * MAX_RANGE) {
+            Messages.send(ninja, "kits.ninja.no-target");
+            return;
+        }
 
         if (ninja.teleport(target.getLocation(), TeleportCause.PLUGIN)) {
             cooldowns.put(uuid, now + cooldownMillis);
+            CooldownFeedback.start(ninja, "Ninja", cooldownMillis);
         }
     }
 
