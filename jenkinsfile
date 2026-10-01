@@ -2,6 +2,10 @@ pipeline {
     agent any
 
     parameters {
+        booleanParam(name: 'DEPLOY', defaultValue: true,
+                     description: 'Publicar o JAR no servidor após validar. Desmarque para executar apenas CI.')
+        booleanParam(name: 'NOTIFY_EMAIL', defaultValue: true,
+                     description: 'Enviar a notificação por e-mail ao finalizar.')
         string(name: 'JAVA_HOME_PATH', defaultValue: '/opt/jdk-21',
                description: 'Java para iniciar o Gradle; o JDK 25 do Paper é obtido automaticamente.')
     }
@@ -27,6 +31,12 @@ pipeline {
                     '''
                 }
             }
+            post {
+                always {
+                    recordIssues tools: [java()], enabledForFailure: true,
+                                 skipPublishingChecks: true
+                }
+            }
         }
 
         stage('Tests') {
@@ -38,6 +48,17 @@ pipeline {
             post {
                 always {
                     junit testResults: 'hardcoregames/build/test-results/test/TEST-*.xml', allowEmptyResults: false
+                    publishHTML(target: [
+                        reportDir: 'hardcoregames/build/reports/tests/test',
+                        reportFiles: 'index.html', reportName: 'Testes OpenHG',
+                        keepAll: true, alwaysLinkToLastBuild: true, allowMissing: false
+                    ])
+                }
+                success {
+                    recordCoverage tools: [[parser: 'JACOCO',
+                                            pattern: 'hardcoregames/build/reports/jacoco/test/jacocoTestReport.xml']],
+                                   sourceDirectories: [[path: 'hardcoregames/src/main/java']],
+                                   failOnError: true, skipPublishingChecks: true
                 }
             }
         }
@@ -64,6 +85,7 @@ pipeline {
         }
 
         stage('Deploy') {
+            when { expression { params.DEPLOY } }
             steps {
                 sh '''
                     set -eu
@@ -85,18 +107,23 @@ pipeline {
 
     post {
         always {
-            emailext(
-                subject: "Pipeline '${env.JOB_NAME} #${env.BUILD_NUMBER}' finalizada: ${currentBuild.currentResult}",
-                body: """Projeto: ${env.JOB_NAME}
+            script {
+                if (params.NOTIFY_EMAIL) {
+                    emailext(
+                        subject: "Pipeline '${env.JOB_NAME} #${env.BUILD_NUMBER}' finalizada: ${currentBuild.currentResult}",
+                        body: """Projeto: ${env.JOB_NAME}
 Build: #${env.BUILD_NUMBER}
 Resultado: ${currentBuild.currentResult}
 Testes e detalhes: ${env.BUILD_URL}
+Deploy solicitado: ${params.DEPLOY}
 O deploy ocorre somente após compilação, testes e validação do JAR concluídos.
 """,
-                to: 'maathdesigner@outlook.com'
-            )
+                        to: 'maathdesigner@outlook.com'
+                    )
+                }
+            }
         }
-        success { echo 'Testes, empacotamento e deploy concluídos.' }
+        success { echo 'Validação concluída. Consulte a etapa Deploy para verificar a publicação.' }
         failure { echo 'Pipeline falhou. Consulte os testes e logs antes de fazer deploy.' }
     }
 }
